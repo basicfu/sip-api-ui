@@ -1,0 +1,9 @@
+.idea
+.vscode
+*.log
+.DS_STORE
+/.next
+/build
+node_modules
+package-lock.json
+yarn-error.log

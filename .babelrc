@@ -1,0 +1,49 @@
+{
+  "presets": [
+    "@babel/preset-react",
+    "next/babel"
+  ],
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    [
+      "@babel/plugin-proposal-class-properties", { loose: true }],
+    [
+      "@babel/plugin-proposal-object-rest-spread",
+      {
+        // Workaround for https://github.com/babel/babel/issues/8323
+        "loose": true
+      }
+    ],
+    "@babel/plugin-transform-object-assign",
+    "@babel/plugin-transform-runtime",
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "api":"./src/api.js",
+          "enum":"./src/utils/enum.js",
+          "config":"./src/config.js",
+          "styles":"./src/styles",
+          "utils": "./src/utils",
+          "components":"./src/components",
+          "icons":"./src/icons",
+          "dva": "dva-no-router",
+          "notify": "./src/utils/notify"
+        }
+      }
+    ]
+  ],
+  "env": {
+    "dev": {
+      "sourceMaps": "both"
+    },
+    "prod": {
+      "plugins": [
+        "transform-react-constant-elements",
+        "transform-dev-warning",
+        ["react-remove-properties", { "properties": ["data-mui-test"] }],
+        ["transform-react-remove-prop-types", { "mode": "remove" }]
+      ]
+    }
+  }
+}
