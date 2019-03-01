@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-
+const WebpackBar = require('webpackbar');
 
 module.exports = {
   webpack: config => {
@@ -15,6 +15,7 @@ module.exports = {
       new webpack.DefinePlugin({
         'process.env': env,
       }),
+      new WebpackBar(),
     ]);
     if (process.env.STATS_ENABLED) {
       plugins.push(
