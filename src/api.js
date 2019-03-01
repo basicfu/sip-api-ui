@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import request from './utils/request';
 
 const prefix = '/api';
@@ -23,6 +24,7 @@ export async function deleteProject(params) { return request(`${prefix}${sapi}/p
 // 项目分类
 export async function getProjectCategory(params) { return request(`${prefix}${sapi}/project-category/get`, { method: 'GET', body: params }); }
 export async function insertProjectCategory(params) { return request(`${prefix}${sapi}/project-category/insert`, { method: 'POST', body: params }); }
+export async function deleteProjectCategory(params) { return request(`${prefix}${sapi}/project-category/delete`, { method: 'DELETE', body: params }); }
 // 接口
 export async function getInterface(params) { return request(`${prefix}${sapi}/interface/${params.id}`, { method: 'GET', body: params }); }
 export async function listInterface(params) { return request(`${prefix}${sapi}/interface/list`, { method: 'GET', body: params }); }

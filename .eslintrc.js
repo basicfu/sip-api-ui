@@ -23,6 +23,7 @@ module.exports = {
     },
   },
   rules: {
+    'react/prop-types': 'off',
     // It's buggy
     'react/jsx-curly-brace-presence': 'off',
     'react/require-default-props': 'off',
@@ -53,7 +54,7 @@ module.exports = {
     'consistent-this': ['error', 'self'],
     'max-len': [
       'error',
-      100,
+      500,
       2,
       {
         ignoreUrls: true,

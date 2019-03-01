@@ -116,10 +116,10 @@ const styles = theme => ({
   listSelected: {
     fontWeight: theme.typography.fontWeightMedium,
     borderRight: '3px solid #1890ff',
-    '& span':{
+    '& span': {
       color: '#1890ff',
     },
-    '& svg':{
+    '& svg': {
       color: '#1890ff',
     },
     backgroundColor: '#e6f7ff!important',
@@ -150,55 +150,56 @@ const styles = theme => ({
       letterSpacing: '0.02857em',
     },
   },
-  method:{
+  method: {
     fontSize: '0.7rem',
     width: 28,
     textAlign: 'center',
   },
-  methodGET:{
-    color:'rgba(24, 171, 105, 0.9)',
+  methodGET: {
+    color: 'rgba(24, 171, 105, 0.9)',
   },
-  methodPOST:{
-    color:'rgba(254, 169, 0, 0.9)',
+  methodPOST: {
+    color: 'rgba(254, 169, 0, 0.9)',
   },
-  methodPUT:{
-    color:'rgba(34, 102, 242, 0.9)',
+  methodPUT: {
+    color: 'rgba(34, 102, 242, 0.9)',
   },
-  methodPATCH:{
-    color:'rgba(137, 137, 137, 0.9)',
+  methodPATCH: {
+    color: 'rgba(137, 137, 137, 0.9)',
   },
-  methodDELETE:{
-    color:'rgba(236, 85, 86, 0.9)',
+  methodDELETE: {
+    color: 'rgba(236, 85, 86, 0.9)',
   },
-  methodHEAD:{
-    color:'rgba(137, 137, 137, 0.9)',
+  methodHEAD: {
+    color: 'rgba(137, 137, 137, 0.9)',
   },
-  methodOPTIONS:{
-    color:'rgba(137, 137, 137, 0.9)',
+  methodOPTIONS: {
+    color: 'rgba(137, 137, 137, 0.9)',
   },
 });
 
 const Directory = withStyles(styles)((
-  {classes, id, depth, title, children, projectSelectd, handleOptionOpen, option,project}
+  {classes, id, depth, title, children, projectSelectd, handleOptionOpen, option, project}
 ) => {
   const [open, setOpen] = React.useState(false);
   const [hover, setHover] = React.useState(false);
-  const {selected,changeSelected,changeProject,changeCategory}=project;
-  const {projectId,categoryId,interfaceId}=selected;
-  const listItemSelected=depth===0?projectId===id:categoryId===id;
+  const {selected, changeSelected, changeProject, changeCategory} = project;
+  const {projectId, categoryId, interfaceId} = selected;
+  const listItemSelected = depth === 0 ? projectId === id : categoryId === id;
   const style = {paddingLeft: 8 * (2 + 2 * depth)};
   const directoryChange = () => {
     handleOptionOpen({open: false, selectId: categoryId});
     setOpen(!open);
     let asUrl;
     // 是项目
-    if(depth===0){
-      changeProject(id,!open);
-      asUrl=`/project/${id}/interface`;
-    }else{
-      changeSelected({...selected,categoryId:id});
-      asUrl=`/project/${projectId}/interface/category/${categoryId}`;
-    };
+    if (depth === 0) {
+      changeProject(id, !open);
+      asUrl = `/project/${id}/interface`;
+    } else {
+      changeSelected({...selected, categoryId: id});
+      asUrl = `/project/${projectId}/interface/category/${categoryId}`;
+    }
+    ;
     Router.push('/interface', asUrl);
   };
   const handleOption = (e) => {
@@ -208,7 +209,7 @@ const Directory = withStyles(styles)((
     e.stopPropagation();
   };
   const handleHover = (flag) => {
-    let newOption = {...option};
+    const newOption = {...option};
     newOption.open = false;
     document.body.onclick = flag === true ? () => {
     } : () => handleOptionOpen(newOption);
@@ -218,7 +219,7 @@ const Directory = withStyles(styles)((
     <Fragment>
       <ListItem
         selected={listItemSelected}
-        className={listItemSelected?classes.listSelected:undefined}
+        className={listItemSelected ? classes.listSelected : undefined}
         // classes={{selected:classes.list}}
         onMouseEnter={() => handleHover(true)}
         onMouseLeave={() => handleHover(false)}
@@ -245,7 +246,7 @@ const Directory = withStyles(styles)((
 
   );
 });
-const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, title,method}) => {
+const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, title, method}) => {
   const [hover, setHover] = React.useState(false);
   const style = {
     paddingLeft: 8 * (2 + 2 * depth),
@@ -253,7 +254,7 @@ const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, t
   const interfaceChange = () => {
     Router.push('/run', `/project/${projectId}/interface/${interfaceId}/run`);
   };
-  const formatMethod=(method)=>{
+  const formatMethod = (method) => {
     switch (method.toUpperCase()) {
       case 'PATCH':
         return 'PAT';
@@ -303,7 +304,7 @@ function renderNavItems({items, depth, projectId, option, handleOptionOpen, proj
       {items.reduce((children, item) => {
           const realProjectId = depth === 0 ? item.id : projectId;
           const haveChildren = item.children && item.children.length > 0;
-          if (depth === 0 || item.type==='DIRECTORY') {
+          if (depth === 0 || item.type === 'DIRECTORY') {
             children.push(
               <Directory
                 key={item.id}
@@ -365,7 +366,7 @@ function Category({onChange}) {
   );
 }
 
-const OperationOption = withStyles(styles)(({classes, option, handleOptionOpen, createCategory,deleteCategory}) => {
+const OperationOption = withStyles(styles)(({classes, option, handleOptionOpen, createCategory, deleteCategory}) => {
   const {open, top} = option;
   const optionList = [
     {name: '添加分类', icon: <CreateNewFolder/>, onClick: createCategory},
@@ -405,7 +406,8 @@ const OperationOption = withStyles(styles)(({classes, option, handleOptionOpen, 
     </Paper>
   );
 });
-const namespace = 'sapi';
+const namespace = 'project';
+const categoryNamespace = 'category';
 
 class ProjectSidebar extends Component {
   state = {
@@ -424,30 +426,36 @@ class ProjectSidebar extends Component {
   };
 
   componentDidMount() {
+    console.log(Router.query.id);
     this.dispatch({type: `${namespace}/all`})
   }
 
   handleDone = () => {
     this.dispatch({type: `${namespace}/insert`, payload: this.state.project})
   };
+
   handleCategoryDone = () => {
     const {selected: {projectId, categoryId}, category} = this.state;
-    this.dispatch({type: `${namespace}/insertCategory`, payload: {...category, pid: categoryId, projectId}})
+    this.dispatch({type: `${categoryNamespace}/insert`, payload: {...category, pid: categoryId, projectId}})
   };
+
   handleChange = (id, value) => {
-    let project = this.state.project;
+    const project = this.state.project;
     project[id] = value;
     this.setState({project})
   };
+
   handleCategoryChange = (id, value) => {
-    let category = this.state.category;
+    const category = this.state.category;
     category[id] = value;
     this.setState({category})
   };
+
   handleOptionOpen = ({open, top, selectId}) => {
     const newOpen = open !== undefined ? open : !this.state.option.open;
     this.setState({option: {open: newOpen, top, selectId}})
   };
+
   createProject = () => {
     this.handleOptionOpen({...this.state.option, open: false});
     dialog.confirm({
@@ -457,6 +465,7 @@ class ProjectSidebar extends Component {
       onOk: this.handleDone,
     });
   };
+
   createCategory = () => {
     this.handleOptionOpen({...this.state.option, open: false});
     dialog.confirm({
@@ -466,26 +475,30 @@ class ProjectSidebar extends Component {
       onOk: this.handleCategoryDone,
     });
   };
+
   deleteCategory = () => {
-    const {projectId}=this.state.selected;
-    const onOk=()=>this.dispatch({ type: `${namespace}/delete`, payload: [projectId] });
+    const {projectId} = this.state.selected;
+    const onOk = () => this.dispatch({type: `${namespace}/delete`, payload: [projectId]});
     this.handleOptionOpen({...this.state.option, open: false});
-    dialog.confirm({ title:"确定要删除吗？",onOk  });
+    dialog.confirm({title: "确定要删除吗？", onOk});
   };
-  changeProject=(projectId,open)=>{
-    const {selected}=this.state;
-    if(projectId!==selected.projectId){
-      this.setState({selected:{...selected,projectId}});
-      this.dispatch({type:`${namespace}/getCategory`,payload:{projectId}})
+
+  changeProject = (projectId, open) => {
+    const {selected} = this.state;
+    if (projectId !== selected.projectId) {
+      this.setState({selected: {...selected, projectId}});
+      this.dispatch({type: `${categoryNamespace}/get`, payload: {projectId}})
     }
   };
-  changeCategory=(categoryId)=>{
-    const {selected}=this.state;
-    if(categoryId!==selected.categoryId){
-      this.setState({selected:{...selected,categoryId}});
-      this.dispatch({type:`${namespace}/getCategory`,payload:{projectId}})
+
+  changeCategory = (categoryId) => {
+    const {selected} = this.state;
+    if (categoryId !== selected.categoryId) {
+      this.setState({selected: {...selected, categoryId}});
+      this.dispatch({type: `${categoryNamespace}/get`, payload: {categoryId}})
     }
   };
+
   render() {
     const {classes, data: {projectList}} = this.props;
     const {option, selected} = this.state;
@@ -514,12 +527,15 @@ class ProjectSidebar extends Component {
             paper: classes.drawerPaper,
           }}
         >
-          {renderNavItems({items: projectList, depth: 0, option, handleOptionOpen: this.handleOptionOpen,
-            project:{
+          {renderNavItems({
+            items: projectList, depth: 0, option, handleOptionOpen: this.handleOptionOpen,
+            project: {
               selected,
-              changeSelected:(selected)=>{this.setState({selected})},
-              changeProject:this.changeProject,
-              changeCategory:this.changeCategory,
+              changeSelected: (selected) => {
+                this.setState({selected})
+              },
+              changeProject: this.changeProject,
+              changeCategory: this.changeCategory,
             }
           })}
         </Drawer>

@@ -10,6 +10,7 @@ const handle = app.getRequestHandler();
 const devProxy = {
   '/api': {
     target: 'http://localhost:7100/',
+    // target: 'https://api-dev.dmka.cn/',
     secure: false,
     pathRewrite: { '^/api': '/' },
     changeOrigin: true,
@@ -41,7 +42,7 @@ app.prepare().then(() => {
     for (const key in customPath) {
       const item = customPath[key];
       server.get(key, (req, res) => {
-        return app.render(req, res, item, { id: req.params.id });
+        return app.render(req, res, item, { id: req.params.projectId });
       });
     }
   }

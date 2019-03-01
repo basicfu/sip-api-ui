@@ -31,7 +31,7 @@ const model = {
           dispatch({ type: 'user' });
           dispatch({ type: 'dict' });
         } else if (Router.pathname !== '/login') {
-          Router.push('/login');
+          // Router.push('/login');
         }
       }
     },
@@ -52,7 +52,7 @@ const model = {
         //TODO 不能找到indexoof
         console.log(roles);
         if (roles === null || roles === undefined || (roles.indexOf('GUEST') !== -1 && roles.length === 1)) {
-          Router.push('/login');
+          // Router.push('/login');
         } else {
           yield put({ type: 'updateState', payload: { user: { ...response.data } } });
         }

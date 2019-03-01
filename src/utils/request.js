@@ -84,8 +84,8 @@ export default function request(url, options) {
           }
           // code=1表示未登录
           if (result.code === 1) {
-            window.localStorage.removeItem('auth');
-            window.location.href = '/login';
+            // window.localStorage.removeItem('auth');
+            // window.location.href = '/login';
           }
           return { success: false };
         }

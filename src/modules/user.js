@@ -30,7 +30,7 @@ const modal = {
         window.localStorage.removeItem('auth');
         window.localStorage.removeItem('appCode');
         // noinspection JSUnresolvedFunction
-        Router.push('/login');
+        // Router.push('/login');
       }
     },
   },
