@@ -18,11 +18,11 @@
   },
   "homepage": "http://sip.basicfu.com/",
   "scripts": {
-    "dev": "rimraf node_modules/.cache/babel-loader && cross-env BABEL_ENV=dev node server.js",
-    "build": "cross-env BABEL_ENV=prod next build",
+    "dev": "rimraf node_modules/.cache/babel-loader && cross-env ENV=dev node server.js",
+    "build": "cross-env ENV=prod next build",
     "start": "next start",
     "size-why": "STATS_ENABLED=true yarn build",
-    "export": "cross-env BABEL_ENV=prod next build && next export -o dist"
+    "export": "cross-env ENV=prod next build && next export -o dist"
   },
   "peerDependencies": {
     "react": "*",

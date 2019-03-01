@@ -19,27 +19,14 @@ export default function request(url, options) {
   };
   const newOptions = { ...defaultOptions, ...options };
   const auth = window.localStorage.getItem('auth');
-  const appCode = window.localStorage.getItem('appCode') || 'sip';
   let headers = { Accept: 'application/json', ...newOptions.headers };
-  headers.app = appCode;
-  // dev ignore permission
-  headers.secret = appCode;
-  if (appCode !== config.app) {
-    headers.call = config.app;
+  headers.app = config.app;
+  if(process.env.ENV==='dev'){
+    // dev ignore permission
+    headers.secret = config.appSecret;
   }
-  // 此接口特殊处理
-  if (url.startsWith('/api/sapi')) {
-    delete headers.call;
-  } else if (url === '/api/base/dict/all') {
-    const requestApp = options.body && options.body.app;
-    if (requestApp && requestApp !== 'sip') {
-      headers.app = requestApp;
-      headers.secret = requestApp;
-      headers.call = config.app;
-      delete newOptions.body.app;
-    } else {
-      headers.app = config.app;
-    }
+  if (url.startsWith("/api/base")) {
+    headers.call = 'sip';
   }
   if (auth) {
     headers.Authorization = JSON.parse(auth).token;

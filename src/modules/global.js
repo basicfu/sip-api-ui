@@ -29,7 +29,7 @@ const model = {
             dispatch({ type: 'updateState', payload: { auth: JSON.parse(auth) || {} } });
           });
           dispatch({ type: 'user' });
-          dispatch({ type: 'dict' });
+          // dispatch({ type: 'dict' });
         } else if (Router.pathname !== '/login') {
           // Router.push('/login');
         }

@@ -1,6 +1,7 @@
 const config = {
   title: 'SIP-API接口管理平台',
-  app: 'sip',
+  app: 'sapi',
+  appSecret: 'sapi',
   redirectPath: {},
   customPath: {
     // '/project/:projectId/interface/:interfaceId/run': '/run',
