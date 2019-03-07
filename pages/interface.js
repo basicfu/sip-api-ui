@@ -8,6 +8,7 @@ import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
+import TableBody from "@material-ui/core/TableBody";
 
 const namespace = 'interface';
 const styles = {
@@ -23,7 +24,8 @@ const styles = {
 
 class Run extends Component {
   render() {
-    const {classes}=this.props;
+    const {classes,data}=this.props;
+    const {data:{list,page}}=data;
     return (
       <Fragment>
         <Tabs value='interface'/>
@@ -34,13 +36,20 @@ class Run extends Component {
         <Table >
           <TableHead>
             <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
-              <TableCell align="right">Fat (g)</TableCell>
-              <TableCell align="right">Carbs (g)</TableCell>
-              <TableCell align="right">Protein (g)</TableCell>
+              <TableCell>接口名</TableCell>
+              <TableCell>接口路径</TableCell>
             </TableRow>
           </TableHead>
+          <TableBody>
+            {list.map((item,index)=>{
+              return(
+                <TableRow key={index}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.path}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
         </Table>
       </Fragment>
     );

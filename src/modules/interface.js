@@ -2,9 +2,6 @@ import {insertProject, listInterface,} from 'api';
 import dialog from 'utils/dialog';
 
 const modal = {
-  state: {
-    projectList: [],
-  },
   effects: {
     * list({ payload }, { call, put }) {
       const data = payload;

@@ -2,18 +2,13 @@ import React, {Fragment} from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import Drawer from '@material-ui/core/Drawer';
-import Button from '@material-ui/core/Button';
 import Folder from '@material-ui/icons/Folder';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import ListItem from '@material-ui/core/ListItem';
 import classNames from 'classnames';
 import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
 import MoreHoriz from '@material-ui/icons/MoreHoriz';
-import NextLink from 'next/link';
-import Link from '@material-ui/core/Link';
 import IconButton from '@material-ui/core/IconButton';
-import Fab from '@material-ui/core/Fab';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Router from 'next/router';
@@ -22,20 +17,12 @@ import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
 import SearchIcon from '@material-ui/icons/Search';
 import CreateNewFolder from '@material-ui/icons/CreateNewFolderOutlined';
-import Settings from '@material-ui/icons/SettingsOutlined';
-import DirectionsIcon from '@material-ui/icons/Directions';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import TextField from '@material-ui/core/TextField';
 import dialog from 'utils/dialog';
 import Input from 'components/Input';
 import Component from "components/Component";
 import {connect} from "dva-no-router";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import Avatar from "@material-ui/core/Avatar";
+import {getQueryString} from "utils";
 
-const drawerWidth = 230;
 const styles = theme => ({
   drawer: {
     width: '100%',
@@ -46,64 +33,15 @@ const styles = theme => ({
     width: '100%',
     position: 'inherit',
   },
-  item: {
-    display: 'block',
-    paddingTop: 0,
-    paddingBottom: 0,
-  },
-  itemLeaf: {
-    height: 48,
-    display: 'flex',
-    paddingTop: 0,
-    paddingBottom: 0,
-  },
-  button: {
-    height: 48,
-    justifyContent: 'flex-start',
-    textTransform: 'none',
-    width: '100%',
-    borderRadius: 0,
-    color: 'rgba(0, 0, 0, 0.65)',
-  },
-  buttonLeaf: {
-    color: 'rgba(0, 0, 0, 0.65)',
-    justifyContent: 'flex-start',
-    textTransform: 'none',
-    width: '100%',
-    height: '100%',
-    borderRadius: 0,
-    fontWeight: theme.typography.fontWeightRegular,
-    '&.depth-0': {
-      fontWeight: theme.typography.fontWeightMedium,
-    },
-  },
-  active: {
-    // color: theme.palette.primary.main,
-    // backgroundColor: theme.palette.primary.main,
-    fontWeight: theme.typography.fontWeightMedium,
-    '&:hover': {
-      backgroundColor: '#e6f7ff',
-    },
-    borderRight: '3px solid #1890ff',
-    color: '#1890ff',
-    backgroundColor: '#e6f7ff',
-  },
-  menuLabel: {
-    marginLeft: 6,
-    cursor: 'pointer',
-  },
-  a: {
-    textDecoration: 'none',
-    '&:hover': {
-      textDecoration: 'inherit',
-    },
-  },
   moreOperation: {
     position: 'absolute',
     right: 0,
   },
   listIcon: {
     margin: '0',
+    '& svg:hover':{
+      color: 'rgba(254, 169, 0, 0.9)'
+    }
   },
   listText: {
     padding: '0 6px',
@@ -178,29 +116,35 @@ const styles = theme => ({
   },
 });
 
-const Directory = withStyles(styles)((
-  {classes, id, depth, title, children, projectSelectd, handleOptionOpen, option, project}
-) => {
-  const [open, setOpen] = React.useState(false);
+const Directory = withStyles(styles)((props) => {
+  const {classes, id,rootId, depth, title, children, handleOptionOpen, option, project}=props;
+  const [open, setOpen] = React.useState(props.open);
+  // 暂时找不到优雅的解决方案
+  // React.useEffect(() => {
+  //   setOpen(props.open);
+  // });
   const [hover, setHover] = React.useState(false);
-  const {selected, changeSelected, changeProject, changeCategory} = project;
-  const {projectId, categoryId, interfaceId} = selected;
-  const listItemSelected = depth === 0 ? projectId === id : categoryId === id;
+  const {selected, changeProject, changeCategory} = project;
+  const {projectId, categoryId, select} = selected;
+  const listItemSelected = depth === 0 ? select === `project-${id}` : select === `category-${id}`;
   const style = {paddingLeft: 8 * (2 + 2 * depth)};
+  const openChange=(e)=>{
+    setOpen(!open);
+    e.stopPropagation();
+  };
   const directoryChange = () => {
     handleOptionOpen({open: false, selectId: categoryId});
-    setOpen(!open);
+    setOpen(true);
     let asUrl;
     // 是项目
     if (depth === 0) {
       changeProject(id, !open);
-      asUrl = `/project/${id}/interface`;
+      asUrl = `/interface?project=${id}`;
     } else {
-      changeSelected({...selected, categoryId: id});
-      asUrl = `/project/${projectId}/interface/category/${categoryId}`;
-    }
-    ;
-    Router.push('/interface', asUrl);
+      changeCategory(rootId,id);
+      asUrl = `/interface?project=${rootId}&category=${id}`;
+    };
+    Router.push(asUrl);
   };
   const handleOption = (e) => {
     const rect = e.target.getBoundingClientRect();
@@ -227,8 +171,8 @@ const Directory = withStyles(styles)((
         button
         style={style}
       >
-        <ListItemIcon className={classes.listIcon}>
-          {open ? <FolderOpen/> : <Folder/>}
+        <ListItemIcon onClick={openChange} className={classes.listIcon}>
+          {open ? <FolderOpen /> : <Folder/>}
         </ListItemIcon>
         <ListItemText className={classes.listText} primary={title}/>
         <IconButton
@@ -252,7 +196,7 @@ const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, t
     paddingLeft: 8 * (2 + 2 * depth),
   };
   const interfaceChange = () => {
-    Router.push('/run', `/project/${projectId}/interface/${interfaceId}/run`);
+    Router.push(`/run?project=${projectId}&interface=${interfaceId}`);
   };
   const formatMethod = (method) => {
     switch (method.toUpperCase()) {
@@ -272,7 +216,6 @@ const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, t
       className={classes.list}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      // className={classes.item}
       onClick={() => interfaceChange()}
       button
       style={style}
@@ -291,7 +234,7 @@ const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, t
 });
 
 // eslint-disable-next-line react/prop-types
-function renderNavItems({items, depth, projectId, option, handleOptionOpen, project}) {
+function renderNavItems({items, depth,breadcrumb, rootId, option, handleOptionOpen, project}) {
   // let projectId = 0;
   // if (process.browser && depth === 0) {
   //   const split = Router.asPath.split('/');
@@ -302,9 +245,10 @@ function renderNavItems({items, depth, projectId, option, handleOptionOpen, proj
   return (
     <List style={{padding: 0}}>
       {items.reduce((children, item) => {
-          const realProjectId = depth === 0 ? item.id : projectId;
+          rootId = depth === 0 ? item.id : rootId;
           const haveChildren = item.children && item.children.length > 0;
-          if (depth === 0 || item.type === 'DIRECTORY') {
+          const open = breadcrumb[depth] === item.id;
+          if (depth === 0 || item.type === 'CATEGORY') {
             children.push(
               <Directory
                 key={item.id}
@@ -314,11 +258,14 @@ function renderNavItems({items, depth, projectId, option, handleOptionOpen, proj
                 option={option}
                 handleOptionOpen={handleOptionOpen}
                 project={project}
+                open={open}
+                rootId={rootId}
               >
                 {haveChildren && renderNavItems({
                   items: item.children,
                   depth: depth + 1,
-                  projectId: realProjectId,
+                  breadcrumb,
+                  rootId,
                   option,
                   handleOptionOpen,
                   project
@@ -329,7 +276,7 @@ function renderNavItems({items, depth, projectId, option, handleOptionOpen, proj
             children.push(
               <Interface
                 key={item.id}
-                projectId={realProjectId}
+                rootId={rootId}
                 interfaceId={item.id}
                 depth={depth}
                 title={item.name}
@@ -408,16 +355,12 @@ const OperationOption = withStyles(styles)(({classes, option, handleOptionOpen, 
 });
 const namespace = 'project';
 const categoryNamespace = 'category';
+const interfaceNamespace = 'interface';
 
 class ProjectSidebar extends Component {
   state = {
     project: {name: '', basePath: '', projectType: 'PRIVATE'},
     category: {name: ''},
-    selected: {
-      projectId: 0,
-      categoryId: 0,
-      interfaceId: 0,
-    },
     option: {
       open: false,
       top: 0,
@@ -426,10 +369,29 @@ class ProjectSidebar extends Component {
   };
 
   componentDidMount() {
-    console.log(Router.query.id);
-    this.dispatch({type: `${namespace}/all`})
+    this.dispatch({type: `${namespace}/all`});
+    let projectId=getQueryString('project');
+    let categoryId=getQueryString('category');
+    let interfaceId=getQueryString('interface');
+    let select='';
+    if(projectId){
+      projectId=parseInt(getQueryString('project'),10);
+      select=`project-${projectId}`
+    }
+    if(categoryId){
+      categoryId=parseInt(getQueryString('category'),10);
+      select=`category-${categoryId}`
+    }
+    if(interfaceId){
+      interfaceId=parseInt(getQueryString('interface'),10);
+      select=`interface-${interfaceId}`
+    }
+    if(projectId){
+      this.dispatch({type: `${namespace}/updateState`, payload: {selected: { projectId,categoryId,interfaceId,select}}});
+      this.dispatch({type: `${categoryNamespace}/get`, payload: {projectId}});
+      this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId,categoryId}})
+    }
   }
-
   handleDone = () => {
     this.dispatch({type: `${namespace}/insert`, payload: this.state.project})
   };
@@ -477,31 +439,42 @@ class ProjectSidebar extends Component {
   };
 
   deleteCategory = () => {
-    const {projectId} = this.state.selected;
+    const {projectId} = this.props.data.selected;
     const onOk = () => this.dispatch({type: `${namespace}/delete`, payload: [projectId]});
     this.handleOptionOpen({...this.state.option, open: false});
     dialog.confirm({title: "确定要删除吗？", onOk});
   };
 
-  changeProject = (projectId, open) => {
-    const {selected} = this.state;
-    if (projectId !== selected.projectId) {
-      this.setState({selected: {...selected, projectId}});
-      this.dispatch({type: `${categoryNamespace}/get`, payload: {projectId}})
+  /**
+   * 改变项目时，分类置空
+   * 如果分类不是undefined，则查询一次接口列表
+   */
+  changeProject = (projectId) => {
+    const {selected} = this.props.data;
+    if(selected.categoryId!==undefined){
+      this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId}})
     }
+    if(projectId !== selected.projectId){
+      this.dispatch({type: `${categoryNamespace}/get`, payload: {projectId}});
+    }
+    this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,categoryId:undefined, projectId,select:`project-${projectId}`}}});
   };
 
-  changeCategory = (categoryId) => {
-    const {selected} = this.state;
+  /**
+   * 如果是跨项目更改分类要同时更改项目
+   */
+  changeCategory = (projectId,categoryId) => {
+    const {selected} = this.props.data;
     if (categoryId !== selected.categoryId) {
-      this.setState({selected: {...selected, categoryId}});
-      this.dispatch({type: `${categoryNamespace}/get`, payload: {categoryId}})
+      this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,projectId, categoryId,select:`category-${categoryId}`}}});
+      this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId,categoryId}})
     }
   };
 
   render() {
-    const {classes, data: {projectList}} = this.props;
-    const {option, selected} = this.state;
+    const {classes, data: {projectList,projectList1,selected,breadcrumb}} = this.props;
+    const items=selected.projectId!==undefined?projectList:projectList1;
+    const {option} = this.state;
     return (
       <Fragment>
         <Paper elevation={1}>
@@ -528,12 +501,13 @@ class ProjectSidebar extends Component {
           }}
         >
           {renderNavItems({
-            items: projectList, depth: 0, option, handleOptionOpen: this.handleOptionOpen,
+            items,
+            depth: 0,
+            breadcrumb,
+            option,
+            handleOptionOpen: this.handleOptionOpen,
             project: {
               selected,
-              changeSelected: (selected) => {
-                this.setState({selected})
-              },
               changeProject: this.changeProject,
               changeCategory: this.changeCategory,
             }

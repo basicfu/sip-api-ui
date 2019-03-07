@@ -1,5 +1,13 @@
 import { getOrCreateStore } from 'utils/store';
 
+export function getQueryString(name) {
+  const reg = new RegExp(`(^|&)${  name  }=([^&]*)(&|$)`, "i");
+  const r = window.location.search.substr(1).match(reg);
+  if (r != null) {
+    return unescape(r[2]);
+  };
+  return undefined;
+}
 export function getParentName(all, id, p) {
   let text = '';
   for (const e in all) {
@@ -215,4 +223,34 @@ export function getCountByTreeData(data) {
     }
   }
   return n;
+}
+
+/**
+ * 面包屑刷新判断每层是否应该是open
+ */
+export function breadcrumb(items, select) {
+  const split=select.split('-');
+  const type=split.length===2?split[0].toUpperCase():'';
+  const key=split.length===2?split[1]:'';
+  // console.log(select+"+"+key+"+"+type);
+  const path = [];
+  if (!items || items.length === 0) {
+    return path;
+  }
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+    path.push(item.id);
+    if (key === item.id.toString()&& type===item.type) {
+      return path;
+    }
+    if (item.children && item.children.length > 0) {
+      const result = breadcrumb(item.children, select);
+      if (result.length !== 0) {
+        path.push(...result);
+        return path;
+      }
+    }
+    path.pop();
+  }
+  return [];
 }

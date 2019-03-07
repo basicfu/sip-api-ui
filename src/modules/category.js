@@ -1,19 +1,26 @@
 import {deleteProjectCategory, getProjectCategory, insertProjectCategory} from 'api';
 import dialog from 'utils/dialog';
+import {breadcrumb} from "utils";
 
 const modal = {
   effects: {
     * get({payload}, {call, put, select}) {
       const {success, data} = yield call(getProjectCategory, payload);
       if (success) {
-        const projectList = yield select(state => state.project.projectList);
+        const project = yield select(state => state.project);
+        const projectList = project.projectList1;
         for (const key in projectList) {
           if (projectList[key].id === payload.projectId) {
             projectList[key].children = data;
             break;
           }
         }
-        yield put({type: 'project/updateState', payload: {projectList}});
+        yield put({
+          type: 'project/updateState', payload: {
+            projectList,
+            breadcrumb: breadcrumb(projectList, project.selected.select)
+          }
+        });
       }
     },
     * insert({payload}, {call, put}) {

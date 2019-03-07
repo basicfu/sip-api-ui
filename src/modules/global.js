@@ -49,8 +49,6 @@ const model = {
         if (response.data.type === 'SYSTEM_SUPER_ADMIN' || response.data.user === 'SYSTEM_ADMIN') {
           yield put({ type: 'baseApp/all' });
         }
-        //TODO 不能找到indexoof
-        console.log(roles);
         if (roles === null || roles === undefined || (roles.indexOf('GUEST') !== -1 && roles.length === 1)) {
           // Router.push('/login');
         } else {
