@@ -16,6 +16,7 @@ import Head from 'next/head'
 import styles from 'styles/app';
 import Root from 'components/Root';
 import config from "config";
+import SplitPane from "react-split-pane";
 
 Router.onRouteChangeStart = () => {
   NProgress.start();
@@ -81,7 +82,7 @@ class MyApp extends App {
               <Head>
                 <title>{config.title}</title>
               </Head>
-              <main style={{ height: 'calc(100% - 64px)', display: 'flex' }}>
+              <main id="sip-cross" style={{ height: 'calc(100% - 64px)', display: 'flex' }}>
                 <Root>
                   <MuiThemeProvider
                     theme={this.pageContext.theme}

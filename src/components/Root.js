@@ -4,29 +4,22 @@ import ProjectSidebar from 'components/ProjectSidebar';
 import SplitPane from 'react-split-pane';
 
 const styles = {
-  tab: {
-    minWidth: 100,
-  },
-  content: {
-    height: '100%',
+  bodySplitPane: {
+    position: 'inherit!important',
   },
 };
 
 function Root({classes, children}) {
   return (
-    <div id="sip-cross" className={classes.root}>
-      <SplitPane
-        split="vertical"
-        defaultSize={280}
-        minSize={200}
-        maxSize={400}
-        className={classes.bodySplitPane}>
-        <ProjectSidebar/>
-        <div className={classes.content}>
-          {children}
-        </div>
-      </SplitPane>
-    </div>
+    <SplitPane
+      split="vertical"
+      defaultSize={280}
+      minSize={200}
+      maxSize={400}
+      className={classes.bodySplitPane}>
+      <ProjectSidebar/>
+      {children}
+    </SplitPane>
   );
 }
 
