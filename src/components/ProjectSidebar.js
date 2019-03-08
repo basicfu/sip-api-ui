@@ -120,7 +120,7 @@ const Directory = withStyles(styles)((props) => {
   const {classes, id,rootId, depth, title,breadcrumb, children, handleOptionOpen, option, project,open,handleOpen}=props;
   const [hover, setHover] = React.useState(false);
   const {selected, changeProject, changeCategory} = project;
-  const {projectId, categoryId, select} = selected;
+  const {categoryId, select} = selected;
   const listItemSelected = depth === 0 ? select === `project-${id}` : select === `category-${id}`;
   const style = {paddingLeft: 8 * (2 + 2 * depth)};
   const openChange=(e)=>{
@@ -166,7 +166,7 @@ const Directory = withStyles(styles)((props) => {
         </ListItemIcon>
         <ListItemText className={classes.listText} primary={title}/>
         <IconButton
-          style={{display: depth === 0 && hover ? undefined : 'none'}}
+          style={{display: hover ? undefined : 'none'}}
           className={classes.moreOperation}
           onClick={handleOption}
         >
@@ -180,13 +180,28 @@ const Directory = withStyles(styles)((props) => {
 
   );
 });
-const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, title, method}) => {
+const Interface = withStyles(styles)((props) => {
+  const {classes, id,rootId, depth, title, handleOptionOpen, option, project,method}=props;
   const [hover, setHover] = React.useState(false);
-  const style = {
-    paddingLeft: 8 * (2 + 2 * depth),
+  const {selected, changeInterface} = project;
+  const {categoryId, select} = selected;
+  const style = {paddingLeft: 8 * (2 + 2 * depth)};
+  const handleOption = (e) => {
+    const rect = e.target.getBoundingClientRect();
+    const newOpen = option.selectId === categoryId ? !option.open : true;
+    handleOptionOpen({open: newOpen, top: rect.height / 2 + rect.top, selectId: categoryId});
+    e.stopPropagation();
+  };
+  const handleHover = (e,flag) => {
+    const newOption = {...option};
+    newOption.open = false;
+    document.body.onclick = flag === true ? () => {
+    } : () => handleOptionOpen(newOption);
+    setHover(flag);
   };
   const interfaceChange = () => {
-    Router.push(`/run?project=${projectId}&interface=${interfaceId}`);
+    handleOptionOpen({open: false, selectId: categoryId});
+    changeInterface(rootId,id);
   };
   const formatMethod = (method) => {
     switch (method.toUpperCase()) {
@@ -202,10 +217,10 @@ const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, t
   };
   return (
     <ListItem
-      // selected={projectSelectd}
-      className={classes.list}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      selected={select === `interface-${id}`}
+      className={select === `interface-${id}` ? classes.listSelected : undefined}
+      onMouseEnter={() => handleHover(true)}
+      onMouseLeave={() => handleHover(false)}
       onClick={() => interfaceChange()}
       button
       style={style}
@@ -213,9 +228,9 @@ const Interface = withStyles(styles)(({classes, projectId, interfaceId, depth, t
       <span className={classNames(classes.method, classes[`method${method}`])}>{formatMethod(method)}</span>
       <ListItemText className={classes.listText} primary={title}/>
       <IconButton
-        style={{display: depth === 0 && hover ? undefined : 'none'}}
+        style={{display: hover ? undefined : 'none'}}
         className={classes.moreOperation}
-        onClick={(e) => e.stopPropagation()}
+        onClick={handleOption}
       >
         <MoreHoriz/>
       </IconButton>
@@ -267,13 +282,16 @@ function renderNavItems({items,handleOpen, depth,breadcrumb, rootId, option, han
             children.push(
               <Interface
                 key={item.id}
+                id={item.id}
                 rootId={rootId}
                 interfaceId={item.id}
                 depth={depth}
                 title={item.name}
                 option={option}
                 method={item.method}
+                breadcrumb={newBreadcrumb}
                 handleOptionOpen={handleOptionOpen}
+                handleOpen={handleOpen}
                 project={project}
               />,
             );
@@ -455,13 +473,13 @@ class ProjectSidebar extends Component {
   changeProject = (projectId) => {
     const {selected} = this.props.data;
     Router.push(`/interface?project=${projectId}`);
-    if(selected.categoryId!==undefined){
+    if(selected.categoryId!==undefined||(projectId !== selected.projectId)){
       this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId}})
     }
     if(projectId !== selected.projectId){
       this.dispatch({type: `${categoryNamespace}/get`, payload: {projectId}});
     }
-    this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,categoryId:undefined, projectId,select:`project-${projectId}`}}});
+    this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,projectId,categoryId:undefined,interfaceId:undefined,select:`project-${projectId}`}}});
   };
 
   /**
@@ -470,9 +488,22 @@ class ProjectSidebar extends Component {
   changeCategory = (projectId,categoryId) => {
     const {selected} = this.props.data;
     Router.push(`/interface?project=${projectId}&category=${categoryId}`);
-    if (categoryId !== selected.categoryId) {
-      this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,projectId, categoryId,select:`category-${categoryId}`}}});
+    if (categoryId !== selected.categoryId||selected.interfaceId!==undefined) {
+      this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,projectId, categoryId,interfaceId:undefined,select:`category-${categoryId}`}}});
       this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId,categoryId}})
+    }
+  };
+
+  /**
+   * 接口改变
+   */
+  changeInterface = (projectId,interfaceId) => {
+    const {selected} = this.props.data;
+    Router.push(`/run?project=${projectId}&interface=${interfaceId}`);
+    if (interfaceId !== selected.interfaceId) {
+      this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,projectId, interfaceId,select:`interface-${interfaceId}`}}});
+      // TODO 获取接口数据详情
+      // this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId,categoryId}})
     }
   };
 
@@ -515,6 +546,7 @@ class ProjectSidebar extends Component {
               selected,
               changeProject: this.changeProject,
               changeCategory: this.changeCategory,
+              changeInterface: this.changeInterface,
             }
           })}
         </Drawer>
