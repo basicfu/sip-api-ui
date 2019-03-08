@@ -4,7 +4,6 @@ import dialog from 'utils/dialog';
 const modal = {
   state: {
     projectList: [],
-    projectList1: [],
     breadcrumb: [],
     selected: {
       select: '',
@@ -22,7 +21,7 @@ const modal = {
         response.data.map(item=>{
           projectList.push({...item,type:'PROJECT'})
         });
-        yield put({type: 'updateState', payload: {projectList,projectList1:projectList}});
+        yield put({type: 'updateState', payload: {projectList}});
       }
     },
     * insert({payload}, {call, put}) {

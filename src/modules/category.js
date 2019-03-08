@@ -8,18 +8,16 @@ const modal = {
       const {success, data} = yield call(getProjectCategory, payload);
       if (success) {
         const project = yield select(state => state.project);
-        const projectList = project.projectList1;
+        const projectList = project.projectList;
         for (const key in projectList) {
           if (projectList[key].id === payload.projectId) {
             projectList[key].children = data;
             break;
           }
         }
+        breadcrumb(projectList, project.selected.select);
         yield put({
-          type: 'project/updateState', payload: {
-            projectList,
-            breadcrumb: breadcrumb(projectList, project.selected.select)
-          }
+          type: 'project/updateState', payload: {projectList}
         });
       }
     },

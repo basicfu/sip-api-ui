@@ -241,11 +241,13 @@ export function breadcrumb(items, select) {
     const item = items[i];
     path.push(item.id);
     if (key === item.id.toString()&& type===item.type) {
+      item.open=true;
       return path;
     }
     if (item.children && item.children.length > 0) {
       const result = breadcrumb(item.children, select);
       if (result.length !== 0) {
+        item.open=true;
         path.push(...result);
         return path;
       }
@@ -253,4 +255,25 @@ export function breadcrumb(items, select) {
     path.pop();
   }
   return [];
+}
+/**
+ * 根据面包屑修改是否open
+ */
+export function breadcrumbOpen(items, breadcrumb,depth,open) {
+  if (!items || items.length === 0||breadcrumb.length===0) {
+    return;
+  }
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+    if (breadcrumb[depth] === item.id) {
+      if(breadcrumb.length===depth+1){
+        // 只有选择的最后一层才会open，false，不应改改变上层级，上层级的open已经是正确的
+        item.open=open;
+      }
+      if (item.children && item.children.length > 0 && breadcrumb.length>depth+1) {
+        breadcrumbOpen(item.children, breadcrumb,depth+1,open);
+      }
+      return;
+    }
+  }
 }
