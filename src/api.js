@@ -20,6 +20,7 @@ export async function suggestUser(params) { return request(`${prefix}${base}/use
 // 项目
 export async function allProject(params) { return request(`${prefix}${sapi}/project/all`, { method: 'GET', body: params }); }
 export async function insertProject(params) { return request(`${prefix}${sapi}/project/insert`, { method: 'POST', body: params }); }
+export async function updateProject(params) { return request(`${prefix}${sapi}/project/update`, { method: 'POST', body: params }); }
 export async function deleteProject(params) { return request(`${prefix}${sapi}/project/delete`, { method: 'DELETE', body: params }); }
 // 项目分类
 export async function getProjectCategory(params) { return request(`${prefix}${sapi}/project-category/get`, { method: 'GET', body: params }); }

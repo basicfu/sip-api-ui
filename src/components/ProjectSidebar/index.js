@@ -57,8 +57,7 @@ class Index extends Component {
   };
 
   handleOptionOpen = (open,props) => {
-    const option=this.props.data.option;
-    this.dispatch({type: `${namespace}/updateState`, payload: {option:{...option,...props,open}}});
+    this.dispatch({type: `${namespace}/updateState`, payload: {option:{...props,open}}});
   };
 
   createProject = () => {

@@ -12,24 +12,6 @@ import Component from "components/Component";
 import styles from "styles/projectSidebar";
 import {connect} from "dva-no-router";
 
-function NewProject({onChange}) {
-  return (
-    <Fragment>
-      <Input onChange={e => onChange('name', e.target.value)} column={{label: '项目名'}}/>
-      <Input onChange={e => onChange('basePath', e.target.value)} column={{label: '基础路径'}}/>
-    </Fragment>
-  );
-}
-
-function Category({onChange}) {
-  return (
-    <Fragment>
-      <Input onChange={e => onChange('name', e.target.value)} column={{label: '分类名'}}/>
-      <Input onChange={e => onChange('description', e.target.value)} column={{label: '备注'}}/>
-    </Fragment>
-  );
-}
-
 const namespace = 'project';
 const categoryNamespace = 'category';
 const interfaceNamespace = 'interface';
@@ -38,15 +20,6 @@ class OperationOption extends Component {
   state = {
     project: {name: '', basePath: '', projectType: 'PRIVATE'},
   };
-  handleOptionOpen = (open,props) => {
-    const option=this.props.data.option;
-    this.dispatch({type: `${namespace}/updateState`, payload: {option:{...option,...props,open}}});
-  };
-
-  handleDone = () => {
-    this.dispatch({type: `${namespace}/insert`, payload: this.state.project})
-  };
-
 
   //
   // handleChange = (id, value) => {
@@ -61,11 +34,11 @@ class OperationOption extends Component {
   //   this.setState({category})
   // };
   //
-  // handleOptionOpen = ({open, top, selectId}) => {
-  //   const newOpen = open !== undefined ? open : !this.state.option.open;
-  //   this.setState({option: {open: newOpen, top, selectId}})
-  // };
-  //
+
+  handleOptionOpen = (open,props) => {
+    this.dispatch({type: `${namespace}/updateState`, payload: {option:{...props,open}}});
+  };
+
   // createProject = () => {
   //   this.handleOptionOpen({...this.state.option, open: false});
   //   dialog.confirm({
@@ -76,65 +49,98 @@ class OperationOption extends Component {
   //   });
   // };
   //
-  createCategory = () => {
-    const category = {name: ''};
-    const {projectId,categoryId} = this.props.data.option;
+  handleCategory = (operation) => {
+    const {projectId, categoryId} = this.props.data.option;
     this.handleOptionOpen(false);
-    const onChange=(id,value)=>{
+    if(operation==='add'){
+      const category = {name: ''};
+      const onChange = (id, value) => {
         category[id] = value;
-    };
-    const onOk = () => {
-      this.dispatch({type: `${categoryNamespace}/insert`, payload: {...category, pid: categoryId||0, projectId}})
-    };
-    dialog.confirm({
-      top: 200,
-      title: '添加分类',
-      content: <Fragment>
-        <Input onChange={e => onChange('name', e.target.value)} column={{label: '分类名'}}/>
-        <Input onChange={e => onChange('description', e.target.value)} column={{label: '备注'}}/>
-      </Fragment>,
-      onOk
-    });
+      };
+      const onOk = () => {
+        this.dispatch({type: `${categoryNamespace}/insert`, payload: {...category, pid: categoryId || 0, projectId}})
+      };
+      dialog.confirm({
+        top: 200,
+        title: '添加分类',
+        content: <Fragment>
+          <Input onChange={e => onChange('name', e.target.value)} column={{label: '分类名'}}/>
+          <Input onChange={e => onChange('description', e.target.value)} column={{label: '备注'}}/>
+        </Fragment>,
+        onOk
+      });
+    }else if(operation==='delete'){
+      const onOk = () => this.dispatch({type: `${categoryNamespace}/delete`, payload: [categoryId]});
+      dialog.confirm({title: "确定要删除分类吗？", onOk});
+    }
   };
-  //
-  // deleteCategory = () => {
-  //   const {projectId} = this.props.data.selected;
-  //   const onOk = () => this.dispatch({type: `${namespace}/delete`, payload: [projectId]});
-  //   this.handleOptionOpen({...this.state.option, open: false});
-  //   dialog.confirm({title: "确定要删除吗？", onOk});
-  // };
+
+  handleProject = (operation) => {
+    const item=this.props.data.option.item;
+    this.handleOptionOpen(false);
+    if(operation==='edit'){
+      this.handleOptionOpen(false);
+      const onChange=(id,value)=>{
+        item[id] = value;
+      };
+      const onOk = () => {
+        this.dispatch({type: `${namespace}/update`, payload: item})
+      };
+      dialog.confirm({
+        top: 200,
+        title: '修改项目',
+        content: <Fragment>
+          <Input defaultValue={item.name} onChange={e => onChange('name', e.target.value)} column={{label: '项目名'}}/>
+          <Input defaultValue={item.basePath} onChange={e => onChange('basePath', e.target.value)} column={{label: '基础路径'}}/>
+        </Fragment>,
+        onOk
+      });
+    }else if(operation==='delete'){
+      const onOk = () => this.dispatch({type: `${namespace}/delete`, payload: [item.id]});
+      dialog.confirm({title: "确定要删除项目吗？", onOk});
+    }
+  };
+
+  handleHover = (flag) => {
+    document.body.onclick = flag === true ? () => {
+    } : () => this.handleOptionOpen(false);
+  };
 
   render() {
-    const {classes,data:{option}} = this.props;
-    const {open, top,projectId,categoryId,interfaceId,type} = option;
+    const {classes, data: {option}} = this.props;
+    const {open, top,item} = option;
     const optionList = [
-      {visible: 'project', name: '添加分类', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'project', name: '添加接口', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'project', name: '修改', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'project', name: '复制', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'project', name: '删除', icon: <CreateNewFolder/>, onClick: this.createCategory},
+      {visible: 'project', name: '添加分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory('add')},
+      // {visible: 'project', name: '添加接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      {visible: 'project', name: '修改项目', icon: <CreateNewFolder/>, onClick: ()=>this.handleProject('edit')},
+      // {visible: 'project', name: '复制项目', icon: <CreateNewFolder/>, onClick: ()=>this.handleProject},
+      {visible: 'project', name: '删除项目', icon: <CreateNewFolder/>, onClick: ()=>this.handleProject('delete')},
 
-      {visible: 'category', name: '添加分类', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'category', name: '添加接口', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'category', name: '修改', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'category', name: '复制', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'category', name: '删除', icon: <CreateNewFolder/>, onClick: this.createCategory},
+      {visible: 'category', name: '添加分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory('add')},
+      // {visible: 'category', name: '添加接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      // {visible: 'category', name: '修改分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      // {visible: 'category', name: '复制分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      {visible: 'category', name: '删除分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory('delete')},
 
-      {visible: 'interface', name: '修改', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'interface', name: '复制', icon: <CreateNewFolder/>, onClick: this.createCategory},
-      {visible: 'interface', name: '删除', icon: <CreateNewFolder/>, onClick: this.createCategory},
+      {visible: 'interface', name: '修改', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      {visible: 'interface', name: '复制', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      {visible: 'interface', name: '删除', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
     ];
     return (
-      <Paper style={{display: !open && 'none', top: `${top - 40}px`}} className={classes.operationOption}
-             elevation={24}>
+      <Paper
+        onMouseEnter={() => this.handleHover(true)}
+        onMouseLeave={() => this.handleHover(false)}
+        style={{display: !open && 'none', top: `${top - 40}px`}}
+        className={classes.operationOption}
+        elevation={24}>
         <List component="nav">
-          {optionList.filter(item=>item.visible.toUpperCase()===type).map((item, index) => {
+          {item&&optionList.filter(it => it.visible.toUpperCase() === item.type).map((it, index) => {
             return (
-              <ListItem key={index} className={classes.operationOptionItem} button onClick={item.onClick}>
+              <ListItem key={index} className={classes.operationOptionItem} button onClick={it.onClick}>
                 <ListItemIcon className={classes.operationOptionIcon}>
-                  {item.icon}
+                  {it.icon}
                 </ListItemIcon>
-                <ListItemText className={classes.operationOptionText} primary={item.name}/>
+                <ListItemText className={classes.operationOptionText} primary={it.name}/>
               </ListItem>
             )
           })}

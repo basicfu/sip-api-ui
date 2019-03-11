@@ -1,4 +1,4 @@
-import {allProject, deleteProject, insertProject} from 'api';
+import {allProject, deleteProject, insertProject, updateProject} from 'api';
 import dialog from 'utils/dialog';
 
 const modal = {
@@ -14,31 +14,39 @@ const modal = {
       open: false,
       top: 0,
       selectId: undefined,
+      projectId: undefined,
+      categoryId: undefined,
+      interfaceId: undefined,
     },
   },
   effects: {
-    * all(_, {call, put,select}) {
+    * all(_, {call, put, select}) {
       dialog.close();
       const response = yield call(allProject);
       if (response.success) {
         const projectList = yield select(state => state.project.projectList);
         const projectJson = {};
-        projectList.forEach(item=>{
-          projectJson[item.id]=item;
+        projectList.forEach(item => {
+          projectJson[item.id] = item;
         });
-        response.data.forEach(item=>{
-            const obj=projectJson[item.id]||{};
-            item.type='PROJECT';
-            item.children=obj.children;
-            item.open=obj.open;
+        response.data.forEach(item => {
+          const obj = projectJson[item.id] || {};
+          item.type = 'PROJECT';
+          item.children = obj.children;
+          item.open = obj.open;
         });
-        console.log(response.data);
         // 每次需要平滑load，如果id一致，不改变children
-        yield put({type: 'updateState', payload: {projectList:response.data}});
+        yield put({type: 'updateState', payload: {projectList: response.data}});
       }
     },
     * insert({payload}, {call, put}) {
       const {success} = yield call(insertProject, payload);
+      if (success) {
+        yield put({type: 'all'});
+      }
+    },
+    * update({payload}, {call, put}) {
+      const {success} = yield call(updateProject, payload);
       if (success) {
         yield put({type: 'all'});
       }

@@ -42,7 +42,7 @@ const Directory = withStyles(styles)((props) => {
     }else{
       newOpen=option.selectId===levelInfo.categoryId?!option.open:true;
     }
-    handleOptionOpen(newOpen,{top: rect.height / 2 + rect.top,selectId:id, ...levelInfo,type:item.type});
+    handleOptionOpen(newOpen,{top: rect.height / 2 + rect.top,selectId:id, ...levelInfo,item});
     e.stopPropagation();
   };
   const handleHover = (flag) => {
@@ -90,7 +90,7 @@ const Interface = withStyles(styles)((props) => {
   const handleOption = (e) => {
     const rect = e.target.getBoundingClientRect();
     const newOpen=option.selectId===levelInfo.interfaceId?!option.open:true;
-    handleOptionOpen(newOpen,{top: rect.height / 2 + rect.top,selectId:id, ...levelInfo,type:item.type});
+    handleOptionOpen(newOpen,{top: rect.height / 2 + rect.top,selectId:id, ...levelInfo,item});
     e.stopPropagation();
   };
   const handleHover = (flag) => {

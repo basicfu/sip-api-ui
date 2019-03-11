@@ -21,17 +21,20 @@ const modal = {
         });
       }
     },
-    * insert({payload}, {call, put}) {
+    * insert({payload}, {call, put, select}) {
       dialog.close();
       const {success} = yield call(insertProjectCategory, payload);
       if (success) {
-        // yield put({type: 'all'});
+        const projectId=yield select(state => state.project.selected.projectId);
+        yield put({type: 'get', payload: {projectId}});
       }
     },
-    * delete({payload}, {call, put}) {
+    * delete({payload}, {call, put,select}) {
+      dialog.close();
       const {success} = yield call(deleteProjectCategory, payload);
       if (success) {
-        // yield put({type: 'all'});
+        const projectId=yield select(state => state.project.selected.projectId);
+        yield put({type: 'get', payload: {projectId}});
       }
     },
   },
