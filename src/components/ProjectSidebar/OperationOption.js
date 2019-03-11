@@ -17,61 +17,35 @@ const categoryNamespace = 'category';
 const interfaceNamespace = 'interface';
 
 class OperationOption extends Component {
-  state = {
-    project: {name: '', basePath: '', projectType: 'PRIVATE'},
-  };
-
-  //
-  // handleChange = (id, value) => {
-  //   const project = this.state.project;
-  //   project[id] = value;
-  //   this.setState({project})
-  // };
-  //
-  // handleCategoryChange = (id, value) => {
-  //   const category = this.state.category;
-  //   category[id] = value;
-  //   this.setState({category})
-  // };
-  //
-
   handleOptionOpen = (open,props) => {
     this.dispatch({type: `${namespace}/updateState`, payload: {option:{...props,open}}});
   };
 
-  // createProject = () => {
-  //   this.handleOptionOpen({...this.state.option, open: false});
-  //   dialog.confirm({
-  //     top: 200,
-  //     title: '添加项目',
-  //     content: <NewProject onChange={this.handleChange}/>,
-  //     onOk: this.handleDone,
-  //   });
-  // };
-  //
   handleCategory = (operation) => {
-    const {projectId, categoryId} = this.props.data.option;
+    const option=this.props.data.option;
+    const {projectId, categoryId} = option;
     this.handleOptionOpen(false);
-    if(operation==='add'){
-      const category = {name: ''};
+    if(operation==='add'||operation==='edit'){
+      const add=operation==='add';
+      const item = add?{name: '',pid: categoryId || 0,projectId}:option.item;
       const onChange = (id, value) => {
-        category[id] = value;
+        item[id] = value;
       };
       const onOk = () => {
-        this.dispatch({type: `${categoryNamespace}/insert`, payload: {...category, pid: categoryId || 0, projectId}})
+        this.dispatch({type: `${categoryNamespace}/${add?'insert':'update'}`, payload: item})
       };
       dialog.confirm({
         top: 200,
-        title: '添加分类',
+        title: `${add?'添加':'修改'}分类`,
         content: <Fragment>
-          <Input onChange={e => onChange('name', e.target.value)} column={{label: '分类名'}}/>
-          <Input onChange={e => onChange('description', e.target.value)} column={{label: '备注'}}/>
+          <Input defaultValue={item.name} onChange={e => onChange('name', e.target.value)} column={{label: '分类名'}}/>
+          <Input defaultValue={item.description} onChange={e => onChange('description', e.target.value)} column={{label: '备注'}}/>
         </Fragment>,
         onOk
       });
     }else if(operation==='delete'){
       const onOk = () => this.dispatch({type: `${categoryNamespace}/delete`, payload: [categoryId]});
-      dialog.confirm({title: "确定要删除分类吗？", onOk});
+      dialog.confirm({title: `确定要删除分类[${option.item.name}]吗？`, onOk});
     }
   };
 
@@ -97,7 +71,36 @@ class OperationOption extends Component {
       });
     }else if(operation==='delete'){
       const onOk = () => this.dispatch({type: `${namespace}/delete`, payload: [item.id]});
-      dialog.confirm({title: "确定要删除项目吗？", onOk});
+      dialog.confirm({title: `确定要删除项目[${item.name}]吗？`, onOk});
+    }
+  };
+
+  handleInterface = (operation) => {
+    const option=this.props.data.option;
+    const {projectId, categoryId,interfaceId} = option;
+    this.handleOptionOpen(false);
+    if(operation==='add'){
+      const item = {projectId,categoryId:categoryId || 0,name: '',description:'',method: 'GET'};
+      const onChange = (id, value) => {
+        item[id] = value;
+      };
+      const onOk = () => {
+        this.dispatch({type: `${interfaceNamespace}/insert`, payload: item})
+      };
+      dialog.confirm({
+        top: 200,
+        title: '添加接口',
+        content: <Fragment>
+          <Input onChange={e => onChange('name', e.target.value)} column={{label: '接口名'}}/>
+          <Input onChange={e => onChange('description', e.target.value)} column={{label: '接口描述'}}/>
+          {/* 可选择项目也可选择分类 */}
+          <Input onChange={e => onChange('categoryIdxx', e.target.value)} column={{label: '接口分类'}}/>
+        </Fragment>,
+        onOk
+      });
+    }else if(operation==='delete'){
+      const onOk = () => this.dispatch({type: `${interfaceNamespace}/delete`, payload: [interfaceId]});
+      dialog.confirm({title: `确定要删除接口[${option.item.name}]吗？`, onOk});
     }
   };
 
@@ -111,20 +114,20 @@ class OperationOption extends Component {
     const {open, top,item} = option;
     const optionList = [
       {visible: 'project', name: '添加分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory('add')},
-      // {visible: 'project', name: '添加接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      {visible: 'project', name: '添加接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleInterface('add')},
       {visible: 'project', name: '修改项目', icon: <CreateNewFolder/>, onClick: ()=>this.handleProject('edit')},
       // {visible: 'project', name: '复制项目', icon: <CreateNewFolder/>, onClick: ()=>this.handleProject},
       {visible: 'project', name: '删除项目', icon: <CreateNewFolder/>, onClick: ()=>this.handleProject('delete')},
 
       {visible: 'category', name: '添加分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory('add')},
-      // {visible: 'category', name: '添加接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
-      // {visible: 'category', name: '修改分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      {visible: 'category', name: '添加接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleInterface('add')},
+      {visible: 'category', name: '修改分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory('edit')},
       // {visible: 'category', name: '复制分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
       {visible: 'category', name: '删除分类', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory('delete')},
 
-      {visible: 'interface', name: '修改', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
-      {visible: 'interface', name: '复制', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
-      {visible: 'interface', name: '删除', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      // {visible: 'interface', name: '修改接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      // {visible: 'interface', name: '复制接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleCategory},
+      {visible: 'interface', name: '删除接口', icon: <CreateNewFolder/>, onClick: ()=>this.handleInterface('delete')},
     ];
     return (
       <Paper

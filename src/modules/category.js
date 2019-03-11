@@ -1,4 +1,4 @@
-import {deleteProjectCategory, getProjectCategory, insertProjectCategory} from 'api';
+import {deleteProjectCategory, getProjectCategory, insertProjectCategory, updateProjectCategory} from 'api';
 import dialog from 'utils/dialog';
 import {breadcrumb} from "utils";
 
@@ -25,15 +25,23 @@ const modal = {
       dialog.close();
       const {success} = yield call(insertProjectCategory, payload);
       if (success) {
-        const projectId=yield select(state => state.project.selected.projectId);
+        const projectId = yield select(state => state.project.selected.projectId);
         yield put({type: 'get', payload: {projectId}});
       }
     },
-    * delete({payload}, {call, put,select}) {
+    * update({payload}, {call, put, select}) {
+      dialog.close();
+      const {success} = yield call(updateProjectCategory, payload);
+      if (success) {
+        const projectId = yield select(state => state.project.selected.projectId);
+        yield put({type: 'get', payload: {projectId}});
+      }
+    },
+    * delete({payload}, {call, put, select}) {
       dialog.close();
       const {success} = yield call(deleteProjectCategory, payload);
       if (success) {
-        const projectId=yield select(state => state.project.selected.projectId);
+        const projectId = yield select(state => state.project.selected.projectId);
         yield put({type: 'get', payload: {projectId}});
       }
     },
