@@ -28,7 +28,7 @@ export async function insertProjectCategory(params) { return request(`${prefix}$
 export async function updateProjectCategory(params) { return request(`${prefix}${sapi}/project-category/update`, { method: 'POST', body: params }); }
 export async function deleteProjectCategory(params) { return request(`${prefix}${sapi}/project-category/delete`, { method: 'DELETE', body: params }); }
 // 接口
-export async function getInterface(params) { return request(`${prefix}${sapi}/interface/${params.id}`, { method: 'GET', body: params }); }
+export async function getInterface(params) { return request(`${prefix}${sapi}/interface/${params.id}`, { method: 'GET' }); }
 export async function listInterface(params) { return request(`${prefix}${sapi}/interface/list`, { method: 'GET', body: params }); }
 export async function insertInterface(params) { return request(`${prefix}${sapi}/interface/insert`, { method: 'POST', body: params }); }
 export async function updateInterface(params) { return request(`${prefix}${sapi}/interface/update`, { method: 'POST', body: params }); }

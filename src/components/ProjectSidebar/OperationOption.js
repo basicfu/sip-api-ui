@@ -80,7 +80,7 @@ class OperationOption extends Component {
     const {projectId, categoryId,interfaceId} = option;
     this.handleOptionOpen(false);
     if(operation==='add'){
-      const item = {projectId,categoryId:categoryId || 0,name: '',description:'',method: 'GET'};
+      const item = {projectId,categoryId:categoryId || 0,name: '',description:'',method: 'GET',reqBodyType:'json'};
       const onChange = (id, value) => {
         item[id] = value;
       };

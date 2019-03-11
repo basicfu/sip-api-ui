@@ -1,27 +1,34 @@
-import React, { Fragment } from 'react';
+import React, {Fragment} from 'react';
 import Grid from '@material-ui/core/Grid';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import EnvironmentAutosuggest from 'components/sapi/EnvironmentAutosuggest';
-import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import SplitPane from 'react-split-pane';
 import Divider from '@material-ui/core/Divider';
-import { formatFlag } from 'utils';
 import RequestBody from 'components/sapi/RequestBody';
 import ResponseBody from 'components/sapi/ResponseBody';
 import Tooltip from '@material-ui/core/Tooltip';
 import Tabs from 'components/Tabs';
+import {connect} from "dva-no-router";
+import {getQueryString} from "utils";
+import Component from "components/Component";
+import InputBase from "@material-ui/core/InputBase";
+import Input from "@material-ui/core/Input";
+import ArrowRight from "@material-ui/icons/ArrowRight";
+import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
+import IconButton from "@material-ui/core/IconButton";
+import notify from "utils/notify";
 
-const drawerWidth = 230;
-
+const namespace = 'interface';
+const projectNamespace = 'project';
 const styles = theme => ({
   root: {
     height: 'calc( 100% - 48px )',
   },
   request: {
-    padding: 8,
+    padding: '0 8px 8px 8px',
     height: 48,
   },
   pathInput: {
@@ -66,35 +73,44 @@ const styles = theme => ({
       textDecoration: 'none',
     },
   },
+  header:{
+    padding: '4px 8px',
+  },
+  headerTitle:{
+    display: 'flex',
+  },
+  arrowButton:{
+    width:20,
+    height:20,
+    padding: 0,
+    margin: '5px 0 7px 0',
+  },
+  name:{
+    width: '100%',
+    fontSize: 14,
+    fontWeight: 500,
+    '&:before':{
+      border: 'none',
+    },
+  },
+  description:{
+    width: '100%',
+    margin: '0 0 0 20px',
+    fontSize: 12,
+    fontWeight: 400,
+    '&:before':{
+      border: 'none',
+    },
+  }
 });
-const pathData = [
-  { key: 'id', value: 3, description: '用户ID' },
-  { key: 'name', value: 'xiaoming', description: '姓名' },
-];
-const headerData = [
-  {
-    key: 'Content-Type', value: 'application/json', require: true, description: '请求头类型',
-  },
-  {
-    key: 'token', value: 'adak231489fadkjfahs', require: false, description: 'token',
-  },
-];
-const queryData = [
-  {
-    key: 'nickname', value: '小明', require: true, description: '昵称',
-  },
-  {
-    key: 'test', value: '', require: false, description: '',
-  },
-];
 const methodList = [
-  { label: 'GET', value: 'GET' },
-  { label: 'POST', value: 'POST' },
-  { label: 'PUT', value: 'PUT' },
-  { label: 'PATCH', value: 'PATCH' },
-  { label: 'DELETE', value: 'DELETE' },
-  { label: 'HEAD', value: 'HEAD' },
-  { label: 'OPTIONS', value: 'OPTIONS' },
+  {label: 'GET', value: 'GET'},
+  {label: 'POST', value: 'POST'},
+  {label: 'PUT', value: 'PUT'},
+  {label: 'PATCH', value: 'PATCH'},
+  {label: 'DELETE', value: 'DELETE'},
+  {label: 'HEAD', value: 'HEAD'},
+  {label: 'OPTIONS', value: 'OPTIONS'},
 ];
 const initCrossRequest = (fn) => {
   let startTime = 0;
@@ -113,31 +129,21 @@ const initCrossRequest = (fn) => {
   return _crossRequest;
 };
 
-class Run extends React.Component {
+class Run extends Component {
   state = {
     hasPlugin: true,
-    path1: { bulk: false, data: pathData },
-    header: { bulk: false, data: headerData },
-    query: { bulk: false, data: queryData },
-    data: {
-      method: 'GET',
-      host: '',
-      path: '',
-      reqHeaders: [],
-      reqBodyType: 'json',
-      reqBody: '',
-    },
     responseData: {},
     envList: [
-      { label: '本地', host: 'http://api-dev.dmka.cn' },
-      { label: '开发', host: 'http://api-dev.dmka.cn' },
-      { label: '测试', host: 'https://api-test.dmka.cn' },
+      {label: '本地', host: 'http://api-dev.dmka.cn'},
+      {label: '开发', host: 'http://api-dev.dmka.cn'},
+      {label: '测试', host: 'https://api-test.dmka.cn'},
     ],
+    headerArrow: false,
   };
 
   componentDidMount() {
     this._crossRequestInterval = initCrossRequest((hasPlugin) => {
-      this.setState({ hasPlugin });
+      this.setState({hasPlugin});
     });
   }
 
@@ -145,74 +151,82 @@ class Run extends React.Component {
     clearInterval(this._crossRequestInterval);
   }
 
-  run = () => {
-    const {
-      method, host, path, reqBody,
-    } = this.state.data;
+  handleRun = () => {
+    const item = this.props.data.item;
+    const {method, host, path,reqBodyType,reqBodyJson}=item;
     const reqData = {};
     reqData.method = method;
     reqData.url = host + path;
-    reqData.data = JSON.parse(reqBody);
+    if(reqBodyType==='json'){
+      try {
+        reqData.data = JSON.parse(reqBodyJson);
+      }catch (e) {
+        notify.error("JSON格式错误");
+      }
+    }
     reqData.success = (res) => {
-      this.setState({ responseData: res.body });
+      this.setState({responseData: res.body});
     };
     reqData.error = (res) => {
-      this.setState({ responseData: res.body });
+      this.setState({responseData: res.body});
     };
     window.crossRequest(reqData);
   };
 
-  handleChangeValue = (key, value) => {
-    const { data } = this.state;
-    data[key] = value;
-    this.setState({ data });
+  handleSave = () => {
+    const item = this.props.data.item;
+    if(item.id){
+      this.dispatch({type: `${namespace}/update`, payload: item})
+    }else{
+      this.dispatch({type: `${namespace}/insert`, payload: item})
+    }
   };
 
+  handleChangeValue = (key, value) => {
+    const item = {...this.props.data.item};
+    item[key] = value;
+    this.dispatch({type: `${namespace}/updateState`, payload: {item}})
+  };
   render() {
-    const { classes } = this.props;
-    const pathColumns = [
-      { id: 'key', label: '参数名' },
-      { id: 'value', label: '值' },
-      { id: 'description', label: '描述' },
-    ];
-    const headerColumns = [
-      { id: 'key', label: '参数名' },
-      { id: 'value', label: '值' },
-      { id: 'require', label: '必选', render: formatFlag },
-      { id: 'description', label: '描述' },
-    ];
-    const queryColumns = [
-      { id: 'key', label: '参数名称' },
-      { id: 'value', label: '值' },
-      { id: 'require', label: '必选', render: formatFlag },
-      { id: 'description', label: '描述' },
-    ];
-    const {
-      path1, query, data, envList, hasPlugin, responseData,
-    } = this.state;
-    const {
-      method, host, path, reqHeaders, reqBodyType, reqBody,
-    } = data;
-    const setPath = (path) => {
-      this.setState({ path1 });
-    };
-    const setQuery = (query) => {
-      this.setState({ query });
-    };
+    const {classes,data:{item}} = this.props;
+    const { envList, hasPlugin, responseData,headerArrow} = this.state;
+    const {name,description,method, host, path} = item;
     return (
       <Fragment>
-        <Tabs value="run" />
+        <Tabs value="run"/>
         <div className={classes.root}>
-          <div className={classes.alertMessage} style={{ display: hasPlugin ? 'none' : undefined }}>
+          <div className={classes.alertMessage} style={{display: hasPlugin ? 'none' : undefined}}>
             <div>当前的接口请求服务需浏览器安装免费sip-cross跨域请求插件，选择下面任意一种安装方式，安装成功后请刷新浏览器：</div>
             <div>
-              <a target="_blank" href="http://tmp.static.dmka.cn/sip-cross.crx">[Google商店获取]</a>
-需翻墙
+              <a target="_blank"
+                 href="https://chrome.google.com/webstore/detail/sip-cross/lbcdcjdjhlangdpkckoocobhfmnhhehb?hl=en-US">[Google商店获取]</a>
+              需翻墙
             </div>
             <div>
               <a target="_blank" href="http://tmp.static.dmka.cn/sip-cross.crx">[手动下载]</a>
-将crx文件拖入到chrome://extensions/中
+              将crx文件拖入到chrome://extensions/中
             </div>
+          </div>
+          <div className={classes.header}>
+            <div className={classes.headerTitle}>
+              <IconButton className={classes.arrowButton} onClick={()=>this.setState({headerArrow:!headerArrow})}>
+                {headerArrow===true?<ArrowDropDown fontSize="small"/>:<ArrowRight fontSize="small"/>}
+              </IconButton>
+              <Input
+                className={classes.name}
+                value={name}
+                onChange={e => this.handleChangeValue('name', e.target.value)}
+              />
+            </div>
+            {headerArrow===true&&
+              <Input
+                placeholder="描述"
+                className={classes.description}
+                multiline
+                value={description}
+                onChange={e => this.handleChangeValue('description', e.target.value)}
+              />
+            }
           </div>
           <div className={classes.request}>
             <Grid className={classes.grid} container spacing={8}>
@@ -243,28 +257,18 @@ class Run extends React.Component {
               </Grid>
               <Grid item className={classes.buttonGroup}>
                 <Tooltip title={hasPlugin ? '' : '请先安装sip-cross插件'}>
-                  <span><Button onClick={this.run} variant="contained" className={classes.button} disabled={!hasPlugin}>发 送</Button></span>
+                  <span><Button onClick={this.handleRun} variant="contained" className={classes.button} disabled={!hasPlugin}>发 送</Button></span>
                 </Tooltip>
-                <Button onClick={this.run} color="primary" variant="contained" className={classes.button}>保 存</Button>
+                <Button onClick={this.handleSave} color="primary" variant="contained" className={classes.button}>保 存</Button>
               </Grid>
             </Grid>
           </div>
-          <div id="split" className={classes.split}>
-            {/* <div> */}
-            {/* <SplitPane split="vertical" defaultSize="50%" className={classes.paramSplitPane}> */}
-            {/* <PathEditTable value={path1} setValue={setPath} columns={pathColumns} /> */}
-            {/* <QueryEditTable value={query} setValue={setQuery} columns={queryColumns} /> */}
-            {/* </SplitPane> */}
-            {/* </div> */}
-            <Divider />
+          <div className={classes.split}>
+            <Divider/>
             <SplitPane split="vertical" defaultSize="50%" className={classes.bodySplitPane}>
               <RequestBody
-                reqHeaders={reqHeaders}
-                reqBodyType={reqBodyType}
-                reqBody={reqBody}
-                reqHeadersChange={value => this.handleChangeValue('reqHeaders', value)}
-                reqBodyTypeChange={value => this.handleChangeValue('reqBodyType', value)}
-                reqBodyChange={value => this.handleChangeValue('reqBody', value)}
+                item={item}
+                onChange={this.handleChangeValue}
               />
               <ResponseBody
                 responseData={responseData}
@@ -277,4 +281,53 @@ class Run extends React.Component {
   }
 }
 
-export default withStyles(styles)(Run);
+export default connect(state => ({
+  data: state[namespace],
+  project: state[projectNamespace],
+}))(withStyles(styles)(Run));
+
+
+//
+// const pathColumns = [
+//   { id: 'key', label: '参数名' },
+//   { id: 'value', label: '值' },
+//   { id: 'description', label: '描述' },
+// ];
+// const headerColumns = [
+//   { id: 'key', label: '参数名' },
+//   { id: 'value', label: '值' },
+//   { id: 'require', label: '必选', render: formatFlag },
+//   { id: 'description', label: '描述' },
+// ];
+// const queryColumns = [
+//   { id: 'key', label: '参数名称' },
+//   { id: 'value', label: '值' },
+//   { id: 'require', label: '必选', render: formatFlag },
+//   { id: 'description', label: '描述' },
+// ];
+// {/* <div> */}
+// {/* <SplitPane split="vertical" defaultSize="50%" className={classes.paramSplitPane}> */}
+// {/* <PathEditTable value={path1} setValue={setPath} columns={pathColumns} /> */}
+// {/* <QueryEditTable value={query} setValue={setQuery} columns={queryColumns} /> */}
+// {/* </SplitPane> */}
+// {/* </div> */}
+// const pathData = [
+//   { key: 'id', value: 3, description: '用户ID' },
+//   { key: 'name', value: 'xiaoming', description: '姓名' },
+// ];
+// const headerData = [
+//   {
+//     key: 'Content-Type', value: 'application/json', require: true, description: '请求头类型',
+//   },
+//   {
+//     key: 'token', value: 'adak231489fadkjfahs', require: false, description: 'token',
+//   },
+// ];
+// const queryData = [
+//   {
+//     key: 'nickname', value: '小明', require: true, description: '昵称',
+//   },
+//   {
+//     key: 'test', value: '', require: false, description: '',
+//   },
+// ];

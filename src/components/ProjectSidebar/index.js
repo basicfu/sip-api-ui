@@ -45,6 +45,9 @@ class Index extends Component {
       this.dispatch({type: `${categoryNamespace}/get`, payload: {projectId}});
       this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId,categoryId}})
     }
+    if(interfaceId){
+      this.dispatch({type: `${interfaceNamespace}/get`, payload: {id:interfaceId}})
+    }
   }
 
   /**
@@ -116,8 +119,7 @@ class Index extends Component {
     Router.push(`/run?project=${projectId}&interface=${interfaceId}`);
     if (interfaceId !== selected.interfaceId) {
       this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,projectId, interfaceId,select:`interface-${interfaceId}`}}});
-      // TODO 获取接口数据详情
-      // this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId,categoryId}})
+      this.dispatch({type: `${interfaceNamespace}/get`, payload: {id:interfaceId}})
     }
   };
 
