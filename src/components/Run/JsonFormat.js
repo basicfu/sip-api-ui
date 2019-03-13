@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
-import { withStyles } from '@material-ui/core';
+import React from 'react';
+import {withStyles} from '@material-ui/core';
 import jsonObjToHTML from 'utils/jsonFormat';
-import NoSsr from '@material-ui/core/NoSsr';
 import notify from "utils/notify";
+
 const styles = theme => ({
   tabs: {
     minHeight: 0,

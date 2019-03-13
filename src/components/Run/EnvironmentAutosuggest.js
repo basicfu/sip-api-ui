@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import deburr from 'lodash/deburr';
 import Autosuggest from 'react-autosuggest';
 import match from 'autosuggest-highlight/match';
@@ -7,7 +6,8 @@ import parse from 'autosuggest-highlight/parse';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withStyles } from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core/styles';
+import Grid from "@material-ui/core/Grid";
 
 function renderInputComponent(inputProps) {
   const {
@@ -36,7 +36,7 @@ function renderSuggestion(suggestion, { query, isHighlighted }) {
   const matches = match(suggestion.host, query);
   const parts = parse(suggestion.host, matches);
   return (
-    <MenuItem selected={isHighlighted} component="div">
+    <MenuItem selected={isHighlighted} component="div" style={{fontSize:14,paddingLeft:'8px',paddingRight:'8px'}}>
       <div>
         [{suggestion.label}]
         {parts.map((part, index) => {

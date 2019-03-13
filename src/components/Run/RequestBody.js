@@ -6,11 +6,12 @@ import Tab from '@material-ui/core/Tab';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormEditTable from 'components/sapi/FormEditTable';
-import PathEditTable from "components/sapi/PathEditTable";
+import FormEditTable from './FormEditTable';
 import {formatFlag} from "utils";
 import {Controlled as CodeMirror} from "react-codemirror2";
 import NoSsr from "@material-ui/core/NoSsr";
+import PathEditTable from "components/Run/PathEditTable";
+import QueryEditTable from "components/Run/QueryEditTable";
 
 const styles = {
   tabs: {
@@ -19,6 +20,7 @@ const styles = {
   tab: {
     minWidth: 90,
     minHeight: 40,
+    textTransform: 'none',
   },
   radioGroup: {
     margin: '4px 0 4px 24px',
@@ -49,8 +51,8 @@ if (process.browser) {
 }
 function RequestBody(props) {
   const { classes,item,onChange } = props;
-  const {reqHeaders,reqBodyType,reqBodyJson}=item;
-  const [tabValue, setTabValue] = React.useState(0);
+  const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson}=item;
+  const [tabValue, setTabValue] = React.useState('params');
   const formData=[
     { key: 'nickname', value: '小明', require: true, description: '昵称' },
     { key: 'test', value: '', require: false, description: '' },
@@ -66,12 +68,12 @@ function RequestBody(props) {
   return (
     <Fragment>
       <Tabs className={classes.tabs} value={tabValue} indicatorColor="primary" textColor="primary" onChange={(e, v) => setTabValue(v)}>
-        {/*<Tab className={classes.tab} label="Path" />*/}
-        {/*<Tab className={classes.tab} label="Params" />*/}
-        <Tab className={classes.tab} label="Body" />
-        <Tab className={classes.tab} label="Header" />
+        <Tab value='path' className={classes.tab} label="Path" />
+        <Tab value='params' className={classes.tab} label="Params" />
+        <Tab value='body' className={classes.tab} label="Body" />
+        <Tab value='header' className={classes.tab} label="Header" />
       </Tabs>
-      {tabValue === 0 &&
+      {tabValue === 'body' &&
       <Fragment>
         <RadioGroup value={reqBodyType} onChange={(e, v) => onChange('reqBodyType',v)} row className={classes.radioGroup}>
           <FormControlLabel value="json" control={<Radio className={classes.radio}/>} label="json" />
@@ -102,6 +104,15 @@ function RequestBody(props) {
         {reqBodyType==='binary'&&<input type="file"/>}
         {reqBodyType==='raw'&&<input />}
       </Fragment>
+      }
+      {tabValue==='header'&&
+        <div>header</div>
+      }
+      {tabValue==='params'&&
+        <QueryEditTable path={path} data={queryParams} onChange={onChange}/>
+      }
+      {tabValue==='path'&&
+        <PathEditTable data={pathParams} onChange={onChange}/>
       }
     </Fragment>
   );

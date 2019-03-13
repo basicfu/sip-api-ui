@@ -6,7 +6,7 @@ import Tab from '@material-ui/core/Tab';
 // import {UnControlled as CodeMirror} from 'react-codemirror2';
 // import 'codemirror/lib/codemirror.css';
 // import 'codemirror/theme/material.css';
-import JsonFormat from "components/sapi/JsonFormat";
+import JsonFormat from "./JsonFormat";
 
 
 const styles = theme => ({
@@ -16,6 +16,7 @@ const styles = theme => ({
   tab: {
     minWidth: 90,
     minHeight: 40,
+    textTransform: 'none',
   },
   radioGroup: {
     margin: '4px 0 4px 24px',
