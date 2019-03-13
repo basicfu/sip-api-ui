@@ -238,7 +238,7 @@ function QueryEditTable(props) {
                         </svg>
                         <Checkbox
                           onChange={(e) => updateValue(index, 'enabled', e.target.checked)}
-                          checked={item.enabled}
+                          defaultChecked={item.enabled}
                           className={classes.checkBox}
                           icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
                           checkedIcon={<CheckBoxIcon fontSize="small" />}
@@ -254,23 +254,24 @@ function QueryEditTable(props) {
                       onClick={() => setTable({...table, selectRow: index, selectId: col.id})}
                     >
                       {col.id==='required'?
-                        <Fragment>
-                          <Checkbox
-                            onChange={(e) => updateValue(index, 'required', e.target.checked)}
-                            checked={item.required}
-                            color='primary'
-                            className={classes.required}
-                            // classes={{switchBase:classes.switchBase}}
-                          />
-                          {!item.tmp && <IconButton
-                            onClick={() => deleteRow(index)}
-                            className={classes.delete}
-                            style={{display: hoverRow === index ? undefined : 'none'}}
-                          >
-                            <ClearIcon/>
-                          </IconButton>
-                          }
-                        </Fragment>
+                        (!item.tmp&&
+                          <Fragment>
+                            <Checkbox
+                              onChange={(e) => updateValue(index, 'required', e.target.checked)}
+                              defaultChecked={item.required}
+                              color='primary'
+                              className={classes.checkBox}
+                              icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                              checkedIcon={<CheckBoxIcon fontSize="small" />}
+                            />
+                            <IconButton
+                              onClick={() => deleteRow(index)}
+                              className={classes.delete}
+                              style={{display: hoverRow === index ? undefined : 'none'}}
+                            >
+                              <ClearIcon/>
+                            </IconButton>
+                          </Fragment>)
                         :
                         <input
                           style={{backgroundColor: selectRow === index ? '#efefef' : '#fff'}}

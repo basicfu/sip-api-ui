@@ -68,10 +68,10 @@ function RequestBody(props) {
   return (
     <Fragment>
       <Tabs className={classes.tabs} value={tabValue} indicatorColor="primary" textColor="primary" onChange={(e, v) => setTabValue(v)}>
-        <Tab value='path' className={classes.tab} label="Path" />
         <Tab value='params' className={classes.tab} label="Params" />
-        <Tab value='body' className={classes.tab} label="Body" />
+        <Tab value='path' className={classes.tab} label="Path" />
         <Tab value='header' className={classes.tab} label="Header" />
+        <Tab value='body' className={classes.tab} label="Body" />
       </Tabs>
       {tabValue === 'body' &&
       <Fragment>
