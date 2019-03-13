@@ -12,10 +12,28 @@ import CheckBoxIcon from "@material-ui/icons/CheckBox";
 import Switch from "@material-ui/core/Switch";
 import IconButton from "@material-ui/core/IconButton";
 import ClearIcon from "@material-ui/icons/Clear";
+import Input from "@material-ui/core/Input";
 
 const styles = {
   table: {
     font: '400 11px system-ui',
+  },
+  scrollbar: {
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    height: 'calc( 100% - 40px )'
+  },
+  bulk: {
+    height: 'calc( 100% - 40px )'
+  },
+  textarea: {
+    minWidth: '100%',
+    maxWidth: '100%',
+    outline: 'none',
+    border: '1px solid #ddd',
+    minHeight: '200px',
+    height: 'calc( 100% - 32px )',
+    resize: 'none',
   },
   headerRow: {
     height: 32,
@@ -50,9 +68,6 @@ const styles = {
     height: 30,
     fontSize: 16,
   },
-  bulk: {
-    font: '400 11px system-ui',
-  },
   bulkDiv: {
     borderTop: '1px solid rgba(224, 224, 224, 1)',
     height: 32,
@@ -65,7 +80,7 @@ const styles = {
     verticalAlign: 'middle',
     lineHeight: '32px',
     position: 'absolute',
-    right: '4px',
+    right: '14px',
     '-moz-user-select': '-moz-none',
     '-khtml-user-select:': 'none',
     '-webkit-user-select': 'none',
@@ -75,7 +90,7 @@ const styles = {
     color: '#ff5300',
     cursor: 'pointer',
     position: 'absolute',
-    right: '4px',
+    right: '14px',
     '-moz-user-select': '-moz-none',
     '-khtml-user-select:': 'none',
     '-webkit-user-select': 'none',
@@ -112,126 +127,134 @@ const styles = {
     padding: '2px',
     float: 'left',
   },
-  required:{
+  required: {
     width: '24px',
     height: '24px',
   },
-  delete:{
+  delete: {
     width: '24px',
     height: '24px',
     padding: 0,
     position: 'absolute',
     right: 10,
   },
-  switchBase:{
+  switchBase: {
     height: '100%',
   }
 };
-const newItem={key:'',value:'',description:'',enabled:true,required:false};
+const newItem = {key: '', value: '', description: '', enabled: true, required: false};
 const columns = [
-  { id: 'key', label: '参数名' },
-  { id: 'value', label: '值' },
-  { id: 'description', label: '描述' },
-  { id: 'required', label: '必选'},
+  {id: 'key', label: '参数名'},
+  {id: 'value', label: '值'},
+  {id: 'description', label: '描述'},
+  // {id: 'required', label: '必选'},
 ];
-function calcPath(path,queryParams) {
-  const indexOf=path.indexOf('?');
-  let newPath=indexOf!==-1?path.substring(0,indexOf):path;
-  const params=[];
-  queryParams.forEach(item=>{
-    if(item.enabled===true&&item.key!==''&&item.value!==''){
+
+function calcPath(path, queryParams) {
+  const indexOf = path.indexOf('?');
+  let newPath = indexOf !== -1 ? path.substring(0, indexOf) : path;
+  const params = [];
+  queryParams.forEach(item => {
+    if (item.enabled === true && item.key !== '' && item.value !== '') {
       params.push(`${item.key}=${item.value}`)
-    }else if(item.enabled===true&&item.key!==''&&item.value===''){
+    } else if (item.enabled === true && item.key !== '' && item.value === '') {
       params.push(item.key)
     }
   });
-  if(params.length!==0){
-    newPath+=`?${params.join('&')}`;
+  if (params.length !== 0) {
+    newPath += `?${params.join('&')}`;
   }
   return newPath;
 }
+
 function QueryEditTable(props) {
-  const [table, setTable] = React.useState({selectRow:-1,selectId:-1,hoverRow:-1,bulk:false});
-  const {selectRow,selectId,hoverRow,bulk}=table;
+  const [table, setTable] = React.useState({selectRow: -1, selectId: -1, hoverRow: -1, bulk: false});
+  const {selectRow, selectId, hoverRow, bulk} = table;
   const {classes, path, data, onChange} = props;
   let realData;
-  if(!data||data.length===0){
-    realData=[{...newItem,tmp:true}];
-  }else if(!data[data.length-1].tmp){
-    realData=[...data,{...newItem,tmp:true}];
-  }else{
-    realData=[...data];
+  if (!data || data.length === 0) {
+    realData = [{...newItem, tmp: true}];
+  } else if (!data[data.length - 1].tmp) {
+    realData = [...data, {...newItem, tmp: true}];
+  } else {
+    realData = [...data];
   }
   const updateValue = (index, id, newValue) => {
-    const newData = [...(data||[])];
-    if(id!=='enabled'&&(newData.length===0||index===realData.length-1)){
+    const newData = [...(data || [])];
+    if (id !== 'enabled' && (newData.length === 0 || index === realData.length - 1)) {
       // 如果data没有值或者正编辑的realData是tmp行并且data的最后一行不是tmp行，则新加一行
-      if(newData.length===0||(realData[index].tmp&&(newData.length!==0&&!newData[newData.length-1].tmp))){
-        const addItem={...newItem};
-        addItem[id]=newValue;
+      if (newData.length === 0 || (realData[index].tmp && (newData.length !== 0 && !newData[newData.length - 1].tmp))) {
+        const addItem = {...newItem};
+        addItem[id] = newValue;
         newData.push(addItem);
-      }else{
+      } else {
         newData[index][id] = newValue;
         delete newData[index].tmp;
       }
-    }else{
+    } else {
       newData[index][id] = newValue;
     }
-    const newPath=calcPath(path,newData);
-    onChange('updatePath',{path:newPath,queryParams:newData});
+    const newPath = calcPath(path, newData);
+    onChange('updatePath', {path: newPath, queryParams: newData});
   };
   const deleteRow = (index) => {
-    const newData = [...(data||[])];
-    newData.splice(index,1);
-    const newPath=calcPath(path,newData);
-    onChange('updatePath',{path:newPath,queryParams:newData});
+    const newData = [...(data || [])];
+    newData.splice(index, 1);
+    const newPath = calcPath(path, newData);
+    onChange('updatePath', {path: newPath, queryParams: newData});
+  };
+  const bulkChange=(value)=>{
   };
   return (
     <Fragment>
       {bulk ?
         <div className={classes.bulk}>
           <div className={classes.bulkDiv}>
-            <span className={classes.keyValueEdit} onClick={() => setTable({...table, bulk: !bulk})}>Key-Value Edit</span>
+            <span className={classes.keyValueEdit}
+                  onClick={() => setTable({...table, bulk: !bulk})}>Key-Value Edit</span>
           </div>
           <textarea
             placeholder={'key:value'}
-            style={{minWidth: '100%', maxWidth: '100%', outline: 'none', border: '1px solid #ddd', minHeight: '150px'}}
+            className={classes.textarea}
             // value={queryParamsBulk}
-            // onChange={event => onBulkEditChange(event, 'queryParamsBulk')}
+            onChange={e => bulkChange(e.target.value)}
           />
         </div>
         :
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow className={classes.headerRow}>
-              <TableCell className={classes.tableHeaderFirstCell}/>
-              {columns && columns.map(item =>
-                <TableCell
-                  key={item.id}
-                  className={classes.tableHeaderCell}
-                >
-                  {item.label}
-                  {item.id === 'description' &&
-                  <span className={classes.bulkEdit} onClick={() => setTable({...table, bulk: !bulk})}>Bulk Edit</span>
-                  }
-                </TableCell>,
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              realData.map((item, index) =>
-                <TableRow
-                  key={index}
-                  className={classes.tableRow}
-                  style={{backgroundColor: selectRow === index ? '#efefef' : '#fff'}}
-                  onMouseOver={() => setTable({...table, hoverRow: index})}
-                  onMouseLeave={() => setTable({...table, hoverRow: -1})}
-                >
-                  <TableCell className={classes.tableCell}>
-                    {!item.tmp&&
+        <div className={classes.bulk}>
+          <Table className={classes.table}>
+            <TableHead className={classes.thead}>
+              <TableRow className={classes.headerRow}>
+                <TableCell className={classes.tableHeaderFirstCell}/>
+                {columns && columns.map(item =>
+                  <TableCell
+                    key={item.id}
+                    className={classes.tableHeaderCell}
+                  >
+                    {item.label}
+                    {item.id === 'description' &&
+                    <span className={classes.bulkEdit}
+                          onClick={() => setTable({...table, bulk: !bulk})}>Bulk Edit</span>
+                    }
+                  </TableCell>,
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody className={classes.tbody}>
+              {
+                realData.map((item, index) =>
+                  <TableRow
+                    key={index}
+                    className={classes.tableRow}
+                    style={{backgroundColor: selectRow === index ? '#efefef' : '#fff'}}
+                    onMouseOver={() => setTable({...table, hoverRow: index})}
+                    onMouseLeave={() => setTable({...table, hoverRow: -1})}
+                  >
+                    <TableCell className={classes.tableCell}>
+                      {!item.tmp &&
                       <Fragment>
-                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="24"
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20"
+                             height="24"
                              fill="rgba(190, 190, 190, 1)" className={classes.queryDragIcon}>
                           <path d="M256 710h482v108H286v-108z m0-242h482v108H286v-108z m0-242h482v108H286v-108z"></path>
                         </svg>
@@ -239,30 +262,40 @@ function QueryEditTable(props) {
                           onChange={(e) => updateValue(index, 'enabled', e.target.checked)}
                           defaultChecked={item.enabled}
                           className={classes.checkBox}
-                          icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                          checkedIcon={<CheckBoxIcon fontSize="small" />}
+                          icon={<CheckBoxOutlineBlankIcon fontSize="small"/>}
+                          checkedIcon={<CheckBoxIcon fontSize="small"/>}
                         />
                       </Fragment>
-                    }
-                  </TableCell>
-                  {columns.map(col =>
-                    <TableCell
-                      key={col.id}
-                      style={{width:col.id==='required'?'20%':undefined}}
-                      className={classes.tableCell}
-                      onClick={() => setTable({...table, selectRow: index, selectId: col.id})}
-                    >
-                      {col.id==='required'?
-                        (!item.tmp&&
-                          <Fragment>
+                      }
+                    </TableCell>
+                    {columns.map(col =>
+                      <TableCell
+                        key={col.id}
+                        style={{width: col.id === 'required' ? '20%' : undefined}}
+                        className={classes.tableCell}
+                        onClick={() => setTable({...table, selectRow: index, selectId: col.id})}
+                      >
+                        {col.id === 'required' ?
+                          (!item.tmp &&
                             <Checkbox
                               onChange={(e) => updateValue(index, 'required', e.target.checked)}
                               defaultChecked={item.required}
                               color='primary'
                               className={classes.checkBox}
-                              icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                              checkedIcon={<CheckBoxIcon fontSize="small" />}
+                              icon={<CheckBoxOutlineBlankIcon fontSize="small"/>}
+                              checkedIcon={<CheckBoxIcon fontSize="small"/>}
+                            />)
+                          :
+                          <Fragment>
+                            <input
+                              style={{backgroundColor: selectRow === index ? '#efefef' : '#fff'}}
+                              onFocus={() => setTable({...table, selectRow: index})}
+                              className={`${selectRow}${selectId}` === `${index}${col.id}` ? classes.selectInput : classes.input}
+                              value={item[col.id] || ''}
+                              spellCheck={false}
+                              onChange={(e) => updateValue(index, col.id, e.target.value)}
                             />
+                            {col.id === 'key' &&
                             <IconButton
                               onClick={() => deleteRow(index)}
                               className={classes.delete}
@@ -270,24 +303,17 @@ function QueryEditTable(props) {
                             >
                               <ClearIcon/>
                             </IconButton>
-                          </Fragment>)
-                        :
-                        <input
-                          style={{backgroundColor: selectRow === index ? '#efefef' : '#fff'}}
-                          onFocus={() => setTable({...table, selectRow: index})}
-                          className={`${selectRow}${selectId}` === `${index}${col.id}` ? classes.selectInput : classes.input}
-                          value={item[col.id]||''}
-                          spellCheck={false}
-                          onChange={(e) => updateValue(index, col.id, e.target.value)}
-                        />
-                      }
-                    </TableCell>,
-                  )}
-                </TableRow>,
-              )
-            }
-          </TableBody>
-        </Table>
+                            }
+                          </Fragment>
+                        }
+                      </TableCell>,
+                    )}
+                  </TableRow>,
+                )
+              }
+            </TableBody>
+          </Table>
+        </div>
       }
     </Fragment>
   );

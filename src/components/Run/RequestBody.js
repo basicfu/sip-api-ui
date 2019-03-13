@@ -53,6 +53,7 @@ function RequestBody(props) {
   const { classes,item,onChange } = props;
   const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson}=item;
   const [tabValue, setTabValue] = React.useState('params');
+  const queryParamsCount=queryParams&&queryParams.length!==0?`  (${queryParams.length})`:'';
   const formData=[
     { key: 'nickname', value: '小明', require: true, description: '昵称' },
     { key: 'test', value: '', require: false, description: '' },
@@ -68,7 +69,7 @@ function RequestBody(props) {
   return (
     <Fragment>
       <Tabs className={classes.tabs} value={tabValue} indicatorColor="primary" textColor="primary" onChange={(e, v) => setTabValue(v)}>
-        <Tab value='params' className={classes.tab} label="Params" />
+        <Tab value='params' className={classes.tab} label={<div>Params<label style={{color:'rgb(45,180,120,1)'}}>{queryParamsCount}</label></div>} />
         <Tab value='path' className={classes.tab} label="Path" />
         <Tab value='header' className={classes.tab} label="Header" />
         <Tab value='body' className={classes.tab} label="Body" />
