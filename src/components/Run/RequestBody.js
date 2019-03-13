@@ -12,6 +12,7 @@ import {Controlled as CodeMirror} from "react-codemirror2";
 import NoSsr from "@material-ui/core/NoSsr";
 import PathEditTable from "components/Run/PathEditTable";
 import QueryEditTable from "components/Run/QueryEditTable";
+import HeaderEditTable from "components/Run/HeaderEditTable";
 
 const styles = {
   tabs: {
@@ -54,6 +55,8 @@ function RequestBody(props) {
   const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson}=item;
   const [tabValue, setTabValue] = React.useState('params');
   const queryParamsCount=queryParams&&queryParams.length!==0?`  (${queryParams.length})`:'';
+  const reqHeadersCount=reqHeaders&&reqHeaders.length!==0?`  (${reqHeaders.length})`:'';
+  const [form, setForm] = React.useState({bulk:false,data:formData});
   const formData=[
     { key: 'nickname', value: '小明', require: true, description: '昵称' },
     { key: 'test', value: '', require: false, description: '' },
@@ -65,13 +68,13 @@ function RequestBody(props) {
     { id: 'require', label: '必选', render: formatFlag },
     { id: 'description', label: '描述' },
   ];
-  const [form, setForm] = React.useState({bulk:false,data:formData});
+  const title=(name,count)=><div>{name}<label style={{color:'rgb(45,180,120,1)'}}>{count}</label></div>;
   return (
     <Fragment>
       <Tabs className={classes.tabs} value={tabValue} indicatorColor="primary" textColor="primary" onChange={(e, v) => setTabValue(v)}>
-        <Tab value='params' className={classes.tab} label={<div>Params<label style={{color:'rgb(45,180,120,1)'}}>{queryParamsCount}</label></div>} />
+        <Tab value='params' className={classes.tab} label={title('Params',queryParamsCount)} />
         <Tab value='path' className={classes.tab} label="Path" />
-        <Tab value='header' className={classes.tab} label="Header" />
+        <Tab value='header' className={classes.tab} label={title('Header',reqHeadersCount)} />
         <Tab value='body' className={classes.tab} label="Body" />
       </Tabs>
       {tabValue === 'body' &&
@@ -107,7 +110,7 @@ function RequestBody(props) {
       </Fragment>
       }
       {tabValue==='header'&&
-        <div>header</div>
+        <HeaderEditTable data={reqHeaders} onChange={onChange}/>
       }
       {tabValue==='params'&&
         <QueryEditTable path={path} data={queryParams} onChange={onChange}/>
