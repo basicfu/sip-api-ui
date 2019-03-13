@@ -165,9 +165,8 @@ function QueryEditTable(props) {
   const updateValue = (index, id, newValue) => {
     const newData = [...(data||[])];
     if(id!=='enabled'&&(newData.length===0||index===realData.length-1)){
-      // 空值处理 || 编辑的最后一样则新加一行
-      // 如果正编辑的realData是tmp行并且data的最后一行不是tmp行，则新加一行
-      if(realData[index].tmp&&(newData.length!==0&&!newData[newData.length-1].tmp)){
+      // 如果data没有值或者正编辑的realData是tmp行并且data的最后一行不是tmp行，则新加一行
+      if(newData.length===0||(realData[index].tmp&&(newData.length!==0&&!newData[newData.length-1].tmp))){
         const addItem={...newItem};
         addItem[id]=newValue;
         newData.push(addItem);
