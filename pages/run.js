@@ -184,7 +184,7 @@ class Run extends Component {
 
   handleRun = () => {
     const item = this.props.data.item;
-    const {method, host, path, reqBodyType, reqBodyJson} = item;
+    const {method, host, path, reqBodyType, reqBodyJson, reqBodyForm} = item;
     const reqData = {};
     reqData.method = method;
     reqData.url = host + path;
@@ -194,6 +194,8 @@ class Run extends Component {
       } catch (e) {
         notify.error("JSON格式错误");
       }
+    }else if(reqBodyType==='form'){
+      console.log(reqBodyForm);
     }
     reqData.success = (res) => {
       this.setState({responseData: res.body});

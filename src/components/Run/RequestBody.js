@@ -52,9 +52,10 @@ if (process.browser) {
 }
 function RequestBody(props) {
   const { classes,item,onChange } = props;
-  const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson}=item;
-  const [tabValue, setTabValue] = React.useState('params');
+  const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson,reqBodyForm}=item;
+  const [tabValue, setTabValue] = React.useState('body');
   const queryParamsCount=queryParams&&queryParams.length!==0?`  (${queryParams.length})`:'';
+  const pathParamsCount=pathParams&&pathParams.length!==0?`  (${pathParams.length})`:'';
   const reqHeadersCount=reqHeaders&&reqHeaders.length!==0?`  (${reqHeaders.length})`:'';
   const [form, setForm] = React.useState({bulk:false,data:formData});
   const formData=[
@@ -73,19 +74,21 @@ function RequestBody(props) {
     <Fragment>
       <Tabs className={classes.tabs} value={tabValue} indicatorColor="primary" textColor="primary" onChange={(e, v) => setTabValue(v)}>
         <Tab value='params' className={classes.tab} label={title('Params',queryParamsCount)} />
-        <Tab value='path' className={classes.tab} label="Path" />
+        <Tab value='path' className={classes.tab} label={title('Path',pathParamsCount)} />
         <Tab value='header' className={classes.tab} label={title('Header',reqHeadersCount)} />
         <Tab value='body' className={classes.tab} label="Body" />
       </Tabs>
       {tabValue === 'body' &&
       <Fragment>
-        <RadioGroup value={reqBodyType} onChange={(e, v) => onChange('reqBodyType',v)} row className={classes.radioGroup}>
-          <FormControlLabel value="json" control={<Radio className={classes.radio}/>} label="json" />
-          <FormControlLabel value="form" control={<Radio className={classes.radio}/>} label="form" />
-          <FormControlLabel value="binary" control={<Radio className={classes.radio}/>} label="binary" />
-          <FormControlLabel value="raw" control={<Radio className={classes.radio}/>} label="raw" />
+        <RadioGroup value={reqBodyType} row className={classes.radioGroup}>
+          <FormControlLabel value="json" control={<Radio className={classes.radio}/>} label="json" onClick={()=>onChange('reqBodyType','json')}/>
+          <FormControlLabel value="form" control={<Radio className={classes.radio}/>} label="form"  onClick={()=>onChange('reqBodyType','form')}/>
+          <FormControlLabel value="binary" control={<Radio className={classes.radio}/>} label="binary"  onClick={()=>onChange('reqBodyType','binary')}/>
+          <FormControlLabel value="raw" control={<Radio className={classes.radio}/>} label="raw"  onClick={()=>onChange('reqBodyType','raw')}/>
         </RadioGroup>
-        {reqBodyType === 'form' && <FormEditTable value={form} setValue={setForm} columns={formColumns}/>}
+        {reqBodyType === 'form' &&
+          <FormEditTable data={reqBodyForm} onChange={onChange}/>
+        }
         {reqBodyType === 'json' && <NoSsr>
           <CodeMirror
             className={classes.codeMirror}
