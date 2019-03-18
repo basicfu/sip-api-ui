@@ -43,7 +43,6 @@ class Index extends Component {
     this.dispatch({type: `${namespace}/all`});
     if(projectId){
       this.dispatch({type: `${categoryNamespace}/get`, payload: {projectId}});
-      this.dispatch({type: `${interfaceNamespace}/list`, payload: {projectId,categoryId}})
     }
     if(interfaceId){
       this.dispatch({type: `${interfaceNamespace}/get`, payload: {id:interfaceId}})

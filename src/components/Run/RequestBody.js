@@ -36,6 +36,9 @@ const styles = {
     '& .CodeMirror':{
       height: '100%',
     }
+  },
+  binary:{
+    margin: '0 0 0 10px',
   }
 };
 if (process.browser) {
@@ -52,7 +55,7 @@ if (process.browser) {
 }
 function RequestBody(props) {
   const { classes,item,onChange } = props;
-  const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson,reqBodyForm}=item;
+  const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson,reqBodyForm,reqBodyRaw}=item;
   const [tabValue, setTabValue] = React.useState('body');
   const queryParamsCount=queryParams&&queryParams.length!==0?`  (${queryParams.length})`:'';
   const pathParamsCount=pathParams&&pathParams.length!==0?`  (${pathParams.length})`:'';
@@ -89,7 +92,9 @@ function RequestBody(props) {
         {reqBodyType === 'form' &&
           <FormEditTable data={reqBodyForm} onChange={onChange}/>
         }
-        {reqBodyType === 'json' && <NoSsr>
+        {reqBodyType==='binary'&&<input className={classes.binary} type="file"/>}
+        {reqBodyType === 'json' &&
+        <NoSsr>
           <CodeMirror
             className={classes.codeMirror}
             value={reqBodyJson}
@@ -108,8 +113,26 @@ function RequestBody(props) {
           />
         </NoSsr>
         }
-        {reqBodyType==='binary'&&<input type="file"/>}
-        {reqBodyType==='raw'&&<input />}
+        {reqBodyType==='raw'&&
+        <NoSsr>
+          <CodeMirror
+            className={classes.codeMirror}
+            value={reqBodyRaw}
+            onBeforeChange={(editor, data, value)=>onChange('reqBodyRaw',value)}
+            options={
+              {
+                // mode: 'xml',
+                lineWrapping: true,
+                foldGutter: true,
+                // gutters:["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+                lineNumbers: true,
+                matchBrackets: true,
+                autofocus: true,
+              }
+            }
+          />
+        </NoSsr>
+        }
       </Fragment>
       }
       {tabValue==='header'&&

@@ -16,9 +16,9 @@ const modal = {
           }
         }
         breadcrumb(projectList, project.selected.select);
-        yield put({
-          type: 'project/updateState', payload: {projectList}
-        });
+        yield put({type: 'project/updateState', payload: {projectList}});
+        const {projectId,categoryId}=project.selected;
+        yield put({type: 'interface/list', payload: {projectId,categoryId}});
       }
     },
     * insert({payload}, {call, put, select}) {

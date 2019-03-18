@@ -277,3 +277,32 @@ export function breadcrumbOpen(items, breadcrumb,depth,open) {
     }
   }
 }
+/**
+ * 根据categoryId拿到下面所有的接口列表
+ * categoryId为0时拿items下所有的接口
+ */
+export function findInterface(items,categoryId) {
+  const interfaces = [];
+  if (!items || items.length === 0) {
+    return interfaces;
+  }
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+    if(categoryId===0){
+      if(item.type==='INTERFACE'){
+        interfaces.push(item)
+      }else{
+        const result=findInterface(item.children,0)
+        if(result.length>0){
+          interfaces.push(...result)
+        }
+      }
+    }else if(item.type==='CATEGORY'&&item.id===categoryId){
+      const result=findInterface(item.children,0)
+      if(result.length>0){
+        interfaces.push(...result)
+      }
+    }
+  }
+  return interfaces;
+}
