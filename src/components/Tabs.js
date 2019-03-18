@@ -3,6 +3,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import MuiTabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Router from 'next/dist/client/router';
+import {connect} from "dva-no-router";
 
 const styles = {
   tab: {
@@ -10,9 +11,16 @@ const styles = {
   },
 };
 
-function Tabs({ classes, value }) {
+function Tabs({ classes, value ,selected:{projectId,interfaceId} }) {
   const handleTabChange = (event, v) => {
-    Router.push(`/${v}`);
+    let url=`/${v}`;
+    if(projectId){
+      url+=`?project=${projectId}`
+    }
+    if(interfaceId){
+      url+=`&interface=${interfaceId}`
+    }
+    Router.push(url);
   };
   const projectTabs = {
     interface: '接口',
@@ -34,5 +42,9 @@ function Tabs({ classes, value }) {
     </MuiTabs>
   );
 }
+//
+// export default (withStyles(styles)(Tabs));
 
-export default (withStyles(styles)(Tabs));
+export default connect(state => ({
+  selected: state.project.selected,
+}))(withStyles(styles)(Tabs));

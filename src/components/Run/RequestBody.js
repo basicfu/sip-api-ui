@@ -56,22 +56,10 @@ if (process.browser) {
 function RequestBody(props) {
   const { classes,item,onChange } = props;
   const {path,pathParams,queryParams,reqHeaders,reqBodyType,reqBodyJson,reqBodyForm,reqBodyRaw}=item;
-  const [tabValue, setTabValue] = React.useState('body');
+  const [tabValue, setTabValue] = React.useState('params');
   const queryParamsCount=queryParams&&queryParams.length!==0?`  (${queryParams.length})`:'';
   const pathParamsCount=pathParams&&pathParams.length!==0?`  (${pathParams.length})`:'';
   const reqHeadersCount=reqHeaders&&reqHeaders.length!==0?`  (${reqHeaders.length})`:'';
-  const [form, setForm] = React.useState({bulk:false,data:formData});
-  const formData=[
-    { key: 'nickname', value: '小明', require: true, description: '昵称' },
-    { key: 'test', value: '', require: false, description: '' },
-  ];
-  const formColumns=[
-    { id: 'key', label: '参数名称' },
-    { id: 'type', label: '类型' },
-    { id: 'value', label: '值' },
-    { id: 'require', label: '必选', render: formatFlag },
-    { id: 'description', label: '描述' },
-  ];
   const title=(name,count)=><div>{name}<label style={{color:'rgb(45,180,120,1)'}}>{count}</label></div>;
   return (
     <Fragment>

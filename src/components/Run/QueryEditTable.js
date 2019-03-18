@@ -265,6 +265,13 @@ function QueryEditTable(props) {
                           icon={<CheckBoxOutlineBlankIcon fontSize="small"/>}
                           checkedIcon={<CheckBoxIcon fontSize="small"/>}
                         />
+                        <IconButton
+                          onClick={() => deleteRow(index)}
+                          className={classes.delete}
+                          style={{display: hoverRow === index ? undefined : 'none'}}
+                        >
+                          <ClearIcon/>
+                        </IconButton>
                       </Fragment>
                       }
                     </TableCell>
@@ -295,15 +302,6 @@ function QueryEditTable(props) {
                               spellCheck={false}
                               onChange={(e) => updateValue(index, col.id, e.target.value)}
                             />
-                            {col.id === 'key' &&
-                            <IconButton
-                              onClick={() => deleteRow(index)}
-                              className={classes.delete}
-                              style={{display: hoverRow === index ? undefined : 'none'}}
-                            >
-                              <ClearIcon/>
-                            </IconButton>
-                            }
                           </Fragment>
                         }
                       </TableCell>,
