@@ -47,8 +47,12 @@ function toggle(element,jfStyleEl){
 }
 class JsonFormat extends React.Component {
   componentDidMount() {
-
+    this.format(this.props);
   }
+  componentWillReceiveProps(nextProps, nextContext) {
+    this.format(nextProps);
+  }
+
   componentWillUnmount() {
     let jfStyleEl=document.getElementById("jfStyleEl");
     let jfOptEl=document.getElementById("boxOpt");
@@ -57,6 +61,18 @@ class JsonFormat extends React.Component {
     jfOptEl&&document.body.removeChild(jfOptEl);
     jfPathEl&&document.body.removeChild(jfPathEl);
   }
+  format=(props)=>{
+    const { data } = props;
+    let isJson=false;
+    try {
+      JSON.parse(data);
+      isJson=true;
+    }catch (e) {
+    }
+    if(isJson){
+      this.renderDom(JSON.parse(data));
+    }
+  };
   renderDom(data){
     if (process.browser) {
       document.head.appendChild(document.createRange().createContextualFragment('<style id="jfStyleEl"/>'));
@@ -152,16 +168,7 @@ class JsonFormat extends React.Component {
     }
   }
   render() {
-    const { classes,data } = this.props;
-    let isJson=false;
-    try {
-      JSON.parse(data);
-      isJson=true;
-    }catch (e) {
-    }
-    if(isJson){
-      this.renderDom(JSON.parse(data));
-    }
+    const {classes}=this.props;
     return (
       <div id="jfContent" className={classes.jsonFormat} />
     );

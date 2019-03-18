@@ -53,14 +53,29 @@ const styles = theme => ({
     '& label':{
       fontWeight: 'bold'
     }
+  },
+  pre:{
+    color: '#333',
+    height: '100%',
+    overflowY: 'auto',
+    wordWrap: 'break-word',
+    whiteSpace: 'pre-wrap',
+    padding: 0,
+    margin: 0,
   }
 });
 
 function ResponseBody(props) {
-  const {classes,responseData} = props;
+  const {classes,responseData:{body,headers}} = props;
   const [tabValue, setTabValue] = React.useState(0);
   const [radioValue, setRadioValue] = React.useState('pretty');
-  // https://github.com/JedWatson/react-codemirror/issues/21
+  let isJson=false;
+  try{
+    JSON.parse(body);
+    isJson=true;
+  }catch (e) {
+    isJson=false;
+  }
   if (process.browser) {
     // 引用js
     // require('codemirror/mode/javascript/javascript');
@@ -82,38 +97,18 @@ function ResponseBody(props) {
       </Tabs>
       {tabValue === 0 &&
       <div className={classes.responseBody}>
-        {/*<ToggleButtonGroup className={classes.toggleContainer} value={radioValue} exclusive onChange={(e, v) => setRadioValue(v)}>*/}
-        {/*<ToggleButton value="pretty">*/}
-        {/*<label>pretty</label>*/}
-        {/*</ToggleButton>*/}
-        {/*<ToggleButton value="raw">*/}
-        {/*raw*/}
-        {/*</ToggleButton>*/}
-        {/*</ToggleButtonGroup>*/}
-        <JsonFormat data={responseData}/>
-        {/*<RadioGroup value={radioValue} onChange={(e, v) => setRadioValue(v)} row className={classes.radioGroup}>*/}
-        {/*<FormControlLabel value="pretty" control={<Radio className={classes.radio} />} label="pretty" />*/}
-        {/*<FormControlLabel value="raw" control={<Radio className={classes.radio} />} label="raw" />*/}
-        {/*</RadioGroup>*/}
-        {/*{radioValue === 'pretty' &&*/}
-        {/*<NoSsr>*/}
-        {/*<CodeMirror*/}
-        {/*value={JSON.stringify(json)}*/}
-        {/*options={options}*/}
-        {/*/>*/}
-        {/*</NoSsr>*/}
-        {/*}*/}
+        {isJson ?
+          <JsonFormat data={body}/>
+          :
+          <pre className={classes.pre}>{body}</pre>
+        }
       </div>
       }
       {tabValue === 1 &&
       <div className={classes.responseHeader}>
-        <p><label>status: </label>200</p>
-        <p><label>content-type: </label>application/json;charset=UTF-8</p>
-        <p><label>content-type: </label>application/json;charset=UTF-8</p>
-        <p><label>content-type: </label>application/json;charset=UTF-8</p>
-        <p><label>content-type: </label>application/json;charset=UTF-8</p>
-        <p><label>content-type: </label>application/json;charset=UTF-8</p>
-        <p><label>content-type: </label>application/json;charset=UTF-8</p>
+        {headers&&Object.keys(headers).map((key,index)=>{
+          return(<p key={index}><label>{key}: </label>{headers[key]}</p>)
+        })}
       </div>
       }
     </Fragment>

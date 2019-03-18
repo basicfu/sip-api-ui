@@ -53,8 +53,14 @@ const styles = theme => ({
     position: 'inherit!important',
   },
   bodySplitPane: {
-    position: 'inherit!important',
-    flex: 1,
+    height: 'calc( 100% - 137px )!important',
+    '& .Pane1':{
+
+    },
+    '& .Pane2':{
+      minWidth: '35%',
+      maxWidth: '65%',
+    }
   },
   grid: {
     flexWrap: 'inherit',
@@ -198,10 +204,10 @@ class Run extends Component {
       console.log(reqBodyForm);
     }
     reqData.success = (res) => {
-      this.setState({responseData: res.body});
+      this.setState({responseData: res});
     };
     reqData.error = (res) => {
-      this.setState({responseData: res.body});
+      this.setState({responseData: res});
     };
     window.crossRequest(reqData);
   };
@@ -361,7 +367,7 @@ class Run extends Component {
           </div>
           <div className={classes.split}>
             <Divider/>
-            <SplitPane split="vertical" defaultSize="50%" className={classes.bodySplitPane}>
+            <SplitPane split="vertical" defaultSize='50%' primary="second" className={classes.bodySplitPane}>
               <RequestBody
                 item={item}
                 onChange={this.handleChangeValue}

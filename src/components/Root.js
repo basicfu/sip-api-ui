@@ -5,7 +5,7 @@ import SplitPane from 'react-split-pane';
 
 const styles = {
   bodySplitPane: {
-    position: 'inherit!important',
+    height: 'calc( 100% - 64px )!important',
   },
 };
 
