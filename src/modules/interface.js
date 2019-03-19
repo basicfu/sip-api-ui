@@ -5,6 +5,7 @@ import {findInterface} from "utils";
 const modal = {
   // 受控组件value赋值为undefined会发生警告，传入空字符串
   state:{
+    responseData: {},
     item: {
       name: 'Untitled Request',
       description: '',

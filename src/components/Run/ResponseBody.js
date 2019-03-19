@@ -55,7 +55,7 @@ const styles = theme => ({
     }
   },
   pre:{
-    color: '#333',
+    color: '#555',
     height: '100%',
     overflowY: 'auto',
     wordWrap: 'break-word',

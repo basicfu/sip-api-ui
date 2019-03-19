@@ -157,7 +157,6 @@ function getDomWidth(text) {
 class Run extends Component {
   state = {
     hasPlugin: true,
-    responseData: {},
     envList: [
       {label: '本地', host: 'http://api-dev.dmka.cn/ceshide/api'},
       {label: '开发', host: 'http://api-dev.dmka.cn'},
@@ -204,10 +203,10 @@ class Run extends Component {
       console.log(reqBodyForm);
     }
     reqData.success = (res) => {
-      this.setState({responseData: res});
+      this.dispatch({type: `${namespace}/updateState`, payload: {responseData: res}});
     };
     reqData.error = (res) => {
-      this.setState({responseData: res});
+      this.dispatch({type: `${namespace}/updateState`, payload: {responseData: res}});
     };
     window.crossRequest(reqData);
   };
@@ -287,8 +286,8 @@ class Run extends Component {
   };
 
   render() {
-    const {classes, data: {item}} = this.props;
-    const {envList, hasPlugin, responseData, headerArrow,hostStyle} = this.state;
+    const {classes, data: {item,responseData}} = this.props;
+    const {envList, hasPlugin, headerArrow,hostStyle} = this.state;
     const {name, description, method, host, path} = item;
     return (
       <Fragment>

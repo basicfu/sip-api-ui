@@ -115,7 +115,11 @@ class Index extends Component {
    */
   changeInterface = (projectId,interfaceId) => {
     const {selected} = this.props.data;
-    const path=window.location.pathname;
+    let path=window.location.pathname;
+    if(['/run','/preview'].indexOf(path)===-1){
+      path='/run';
+    }
+    this.dispatch({type: `${interfaceNamespace}/updateState`, payload: {responseData: {}}});
     Router.push(`${path}?project=${projectId}&interface=${interfaceId}`);
     if (interfaceId !== selected.interfaceId) {
       this.dispatch({type: `${namespace}/updateState`, payload: {selected: {...selected,projectId, interfaceId,select:`interface-${interfaceId}`}}});
